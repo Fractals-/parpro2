@@ -10,7 +10,6 @@ ARGS="example"
 # Get OpenMPI settings
 . /etc/bashrc
 module load openmpi/gcc
-module load openmpi/g++
 
 # Make new hostfile specifying the cores per node wanted
 ncores=1
