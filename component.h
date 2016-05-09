@@ -25,6 +25,7 @@ public:
 //  std::vector<bool> nodes;       // Indicates which nodes are in this component
   std::vector<int> edges_source; // source + target = edge in MST
   std::vector<int> edges_target;
+  std::vector<int> nodes;
 
   Component( int tid );
   Component( int tid, int row_idx );
