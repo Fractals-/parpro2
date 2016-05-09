@@ -425,9 +425,10 @@ main(int argc, char **argv)
       }
       int temp_size = mpi_size;
       mpi_size = 1; // Ignore any parallelization
-      Component comp = generateMst(n_rows);
-      if ( rank == 0 )
+      if ( rank == 0 ) {
+        Component comp = generateMst(n_rows);
         finished_mst.push_back(comp);
+      }
       mpi_size = temp_size; 
     }
   }
