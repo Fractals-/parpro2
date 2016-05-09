@@ -265,7 +265,7 @@ Component receiveComponent( int cur_id, int target_rank ){
 void debugComponents( std::vector<Component> finished_components ){
   // DEBUG THE COMMUNICATION HERE
   unsigned int i, j;
-  fprintf(stderr, "\nProcessor %d:\n\n", rank);
+  fprintf(stderr, "\n---------------\nProcessor %d:\n", rank);
   for ( i = 0; i < finished_components.size(); i++ ) {
     Component comp = finished_components[i];
     fprintf(stderr, "\nComponent %d:\n", i);
@@ -406,29 +406,27 @@ main(int argc, char **argv)
   // for ( int i = 0; i < n_rows; i++ )
   //   fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
 
-  // Determine processor distribution for each graph
+  // Determine processor distribution for each graph and compute mst
+  std::vector<Component> finished_mst;
   for ( graph = 0; graph < num_graphs; graph++ ){
-    if ( graph_sizes[graph] > 3 ) // Otherwise parallelization is unlikely to be helpful
+    if ( graph_sizes[graph] > 3 ) {// Otherwise parallelization is unlikely to be helpful
       determineComponents(n_rows, graph_sizes[graph], max_BFS_lvl[graph]);
+      Component comp = generateMst(n_rows);
+      if ( rank == 0 )
+        finished_mst.push_back(comp);
+    }
     else{
       for ( int i = 0; i < max_n_rows; i++ ){
         if ( component_id[i][0] == graph )
           component_id[i][1] = 0;
       }
+      int temp_size = mpi_size;
+      mpi_size = 1; // Ignore any parallelization
+      Component comp = generateMst(n_rows);
+      if ( rank == 0 )
+        finished_mst.push_back(comp);
+      mpi_size = temp_size; 
     }
-  }
-
-  // // Debug output
-  // fprintf(stderr, "\n");
-  // for ( int i = 0; i < n_rows; i++ )
-  //   fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
-
-  // Compute mst for each graph
-  std::vector<Component> finished_mst;
-  for ( graph = 0; graph < num_graphs; graph++ ){
-    Component comp = generateMst(n_rows);
-    if ( rank == 0 )
-      finished_mst.push_back(comp);
   }
 
   // Write mst's to file
