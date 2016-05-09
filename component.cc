@@ -122,7 +122,7 @@ void Component::addComponent( Component &comp, int node, int source ){
   unsigned int i, j = 0;
 
   weight += comp.weight;
-  for ( i = 0; i < edges_source.size(); i++ ) {
+  for ( i = 0; i < comp.edges_source.size(); i++ ) {
     edges_source.push_back(comp.edges_source[i]);
     edges_target.push_back(comp.edges_target[i]);
   }
@@ -136,7 +136,7 @@ void Component::addComponent( Component &comp, int node, int source ){
     el2 = comp.elements[j];
 
     if ( el.col == node ){ // Remove newly added edge (prevent self edge)
-      weight += el2.dist;
+      weight += el.dist;
       elements.erase(elements.begin() + i);
     }
     else if ( el2.col < el.col ) { // Insert edge to a 'new' vertex
