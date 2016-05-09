@@ -319,7 +319,7 @@ void debugComponents( std::vector<Component> finished_components ){
 
 void combineComponents( int n_rows, std::vector<Component>& finished_components ){
   int node, source;
-  unsigned int i, j, k;
+  unsigned int i = 0, j, k;
   bool found;
 
 
