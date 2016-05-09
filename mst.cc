@@ -327,6 +327,8 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
     step = nstep;
   }
 
+  fprintf(stderr, "\n---------------\nProcessor %d:\nfinished communication succefully\n", rank);
+
 }
 
 // order of things:
