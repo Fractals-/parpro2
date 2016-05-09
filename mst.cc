@@ -225,7 +225,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 
 // *************************************************************************************
 
-void sendComponent( Component& comp, int target_rank ){
+void sendComponent( int n_rows, Component& comp, int target_rank ){
   unsigned int sizes[2], ids_size;
   sizes[0] = comp.elements.size();
   sizes[1] = comp.edges_source.size();
@@ -240,7 +240,7 @@ void sendComponent( Component& comp, int target_rank ){
   std::vector<int> ids;
   for ( int i = 0; i < n_rows; i++ ){
     if ( component_id[i][0] == graph && component_id[i][1] == target_rank &&
-         component_id[i][2] == id ) {
+         component_id[i][2] == comp.id ) {
       ids.push_back(i);
     }
   }
@@ -340,7 +340,7 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
       MPI_Send(&num_comps, 1, MPI_UNSIGNED, rank - step, 0, MPI_COMM_WORLD);
 
       for ( i = 0; i < num_comps; i++ )
-        sendComponent( finished_components[i], rank - step );
+        sendComponent( n_rows, finished_components[i], rank - step );
 
     }
 
