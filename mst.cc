@@ -67,8 +67,8 @@ MPI_Datatype MPI_Element;
 void createElementType(){
   const int    nitems = 3;
   int          blocklengths[3] = {1, 1, 1};
-  MPI_Datatype types[3] = {MPI_, MPI_INT, MPI_INT};
-  MPI_Datatype MPI_Element;
+  MPI_Datatype types[3] = {MPI_DOUBLE, MPI_INT, MPI_INT};
+  MPI_Datatype MPI_Element_proto;
   MPI_Aint     offsets[3];
 
   offsets[0] = offsetof(Element, dist);
@@ -81,7 +81,7 @@ void createElementType(){
   MPI_Aint lb, extent;
   MPI_Type_get_extent(MPI_Element_proto, &lb, &extent);
   extent = sizeof(Element);
-  MPI_Type_create_resized(MPI_Element_proto, lb, extent, &MPI_Element)
+  MPI_Type_create_resized(MPI_Element_proto, lb, extent, &MPI_Element);
 
   MPI_Type_commit(&MPI_Element);
 }
@@ -268,15 +268,15 @@ void debugComponents( std::vector<Component> finished_components ){
   for ( i = 0; i < finished_components.size(); i++ ) {
     Component comp = finished_components[i];
     fprintf(stderr, "\nComponent %d:\n", i);
-    fprintf(stderr, "id = %d\n", comp.id);
-    fprintf(stderr, "weight = %.1f\n", comp.weight);
+    fprintf(stderr, "%d, %d: id = %d\n", rank, i, comp.id);
+    fprintf(stderr, "%d, %d: weight = %.1f\n", rank, i, comp.weight);
     for ( j = 0; j < comp.elements.size(); j++ ){
       Element el = comp.elements[j];
-      fprintf(stderr, "edge: %.1f, %d, %d\n", el.dist, el.col, el.from);
+      fprintf(stderr, "%d, %d: edge: %.1f, %d, %d\n", rank, i, el.dist, el.col, el.from);
     }
     fprintf(stderr, "\n");
-    for ( j = 0; j < comp.edge_source.size(); j++ ){
-      fprintf(stderr, "path: %d, %d\n", comp.edge_source[j], comp.edges_target[j]);
+    for ( j = 0; j < comp.edges_source.size(); j++ ){
+      fprintf(stderr, "%d, %d: path: %d, %d\n", rank, i, comp.edges_source[j], comp.edges_target[j]);
     }
   }
 }
@@ -296,7 +296,7 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
 
     debugComponents(finished_components);
 
-    MPI_Barrier();
+    MPI_Barrier(MPI_COMM_WORLD);
     
     if ( mod_rank == 0 ){
       // Receive components from 'rank + step' and integrate them
