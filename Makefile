@@ -1,5 +1,5 @@
-CC = gcc
-CXX = g++
+CC = mpicc
+CXX = mpic++
 CFLAGS = -Wall -Wextra -O3 -g
 
 all:	mst
