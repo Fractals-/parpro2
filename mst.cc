@@ -243,18 +243,19 @@ void sendComponent( Component& comp, int target_rank ){
 
 Component receiveComponent( int cur_id, int target_rank ){
   unsigned int sizes[2];
-  MPI_Recv(&sizes, 2, MPI_UNSIGNED, target_rank, 1, MPI_COMM_WORLD);
+  MPI_Status status;
+  MPI_Recv(&sizes, 2, MPI_UNSIGNED, target_rank, 1, MPI_COMM_WORLD, &status);
 
   Component new_comp(cur_id);
   new_comp.elements.resize(sizes[0]);
   new_comp.edges_source.resize(sizes[1]);
   new_comp.edges_target.resize(sizes[1]);
 
-  MPI_Recv(&new_comp.weight, 1, MPI_DOUBLE, target_rank, 2, MPI_COMM_WOLRD);
+  MPI_Recv(&new_comp.weight, 1, MPI_DOUBLE, target_rank, 2, MPI_COMM_WOLRD, &status);
 
-  MPI_Recv(&new_comp.elements[0], sizes[0], MPI_Element, target_rank, 3, MPI_COMM_WORLD);
-  MPI_Recv(&new_comp.edges_source[0], sizes[1], MPI_INT, target_rank, 4, MPI_COMM_WORLD);
-  MPI_Recv(&new_comp.edges_target[0], sizes[1], MPI_INT, target_rank, 5, MPI_COMM_WORLD);
+  MPI_Recv(&new_comp.elements[0], sizes[0], MPI_Element, target_rank, 3, MPI_COMM_WORLD, &status);
+  MPI_Recv(&new_comp.edges_source[0], sizes[1], MPI_INT, target_rank, 4, MPI_COMM_WORLD, &status);
+  MPI_Recv(&new_comp.edges_target[0], sizes[1], MPI_INT, target_rank, 5, MPI_COMM_WORLD, &status);
 
   return new_comp;
 }
@@ -288,6 +289,7 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
   int nstep, mod_rank,
       cur_id = finished_components[((int) finished_components.size() - 1)].id + 1;
   unsigned int num_comps, i;
+  MPI_Status status;
 
   // Perform stepwise reduction
   while ( step != mpi_size ){
@@ -301,7 +303,7 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
     if ( mod_rank == 0 ){
       // Receive components from 'rank + step' and integrate them
       // fprintf(stderr, "step %d: receive\n", step);
-      MPI_Recv(&num_comps, 1, MPI_UNSIGNED, rank + step, 0, MPI_COMM_WORLD);
+      MPI_Recv(&num_comps, 1, MPI_UNSIGNED, rank + step, 0, MPI_COMM_WORLD, &status);
 
       for ( i = 0; i < num_comps; i++ ){
         Component new_comp = receiveComponent( cur_id, rank + step );
@@ -393,7 +395,7 @@ main(int argc, char **argv)
   determineGraphs(n_rows, graph_sizes, max_BFS_lvl);
 
   // *************************************************************************************
-  MPI_INIT(&argc, &argv);
+  MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
   // rank = 0;
