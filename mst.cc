@@ -251,7 +251,7 @@ Component receiveComponent( int cur_id, int target_rank ){
   new_comp.edges_source.resize(sizes[1]);
   new_comp.edges_target.resize(sizes[1]);
 
-  MPI_Recv(&new_comp.weight, 1, MPI_DOUBLE, target_rank, 2, MPI_COMM_WOLRD, &status);
+  MPI_Recv(&new_comp.weight, 1, MPI_DOUBLE, target_rank, 2, MPI_COMM_WORLD, &status);
 
   MPI_Recv(&new_comp.elements[0], sizes[0], MPI_Element, target_rank, 3, MPI_COMM_WORLD, &status);
   MPI_Recv(&new_comp.edges_source[0], sizes[1], MPI_INT, target_rank, 4, MPI_COMM_WORLD, &status);
