@@ -236,13 +236,16 @@ void sendComponent( Component& comp, int target_rank ){
   MPI_Send(&comp.elements[0], sizes[0], MPI_Element, target_rank, 3, MPI_COMM_WORLD);
   MPI_Send(&comp.edges_source[0], sizes[1], MPI_INT, target_rank, 4, MPI_COMM_WORLD);
   MPI_Send(&comp.edges_target[0], sizes[1], MPI_INT, target_rank, 5, MPI_COMM_WORLD);
+
+  MPI_Send(&comp.id, 1, MPI_INT, target_rank, 6, MPI_COMM_WORLD)
 }
 
 
 // *************************************************************************************
 
-Component receiveComponent( int cur_id, int target_rank ){
+Component receiveComponent( int n_rows, int cur_id, int target_rank ){
   unsigned int sizes[2];
+  int id;
   MPI_Status status;
   MPI_Recv(&sizes, 2, MPI_UNSIGNED, target_rank, 1, MPI_COMM_WORLD, &status);
 
@@ -256,6 +259,14 @@ Component receiveComponent( int cur_id, int target_rank ){
   MPI_Recv(&new_comp.elements[0], sizes[0], MPI_Element, target_rank, 3, MPI_COMM_WORLD, &status);
   MPI_Recv(&new_comp.edges_source[0], sizes[1], MPI_INT, target_rank, 4, MPI_COMM_WORLD, &status);
   MPI_Recv(&new_comp.edges_target[0], sizes[1], MPI_INT, target_rank, 5, MPI_COMM_WORLD, &status);
+
+  MPI_Recv(&id, 1, MPI_INT, target_rank, 6, MPI_COMM_WORLD, &status);
+
+  for ( int i = 0; i < n_rows; i++ ){
+    if ( component_id[i][0] == graph && component_id[i][1] == target_rank &&
+         component_id[i][2] == id)
+      component_id[i][2] = cur_id;
+  }
 
   return new_comp;
 }
@@ -296,26 +307,24 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
     nstep = 2 * step;
     mod_rank = rank % nstep;
 
-    debugComponents(finished_components);
+    // debugComponents(finished_components);
 
     MPI_Barrier(MPI_COMM_WORLD);
     
     if ( mod_rank == 0 ){
       // Receive components from 'rank + step' and integrate them
-      // fprintf(stderr, "step %d: receive\n", step);
       MPI_Recv(&num_comps, 1, MPI_UNSIGNED, rank + step, 0, MPI_COMM_WORLD, &status);
 
       for ( i = 0; i < num_comps; i++ ){
-        Component new_comp = receiveComponent( cur_id, rank + step );
+        Component new_comp = receiveComponent( n_rows, cur_id, rank + step );
         finished_components.push_back(new_comp);
       }
 
-      debugComponents(finished_components);
+      // debugComponents(finished_components);
 
     }
     else if ( mod_rank - step == 0 ){
       // Send components to 'rank - step'
-      // fprintf(stderr, "step %d: send\n", step);
       num_comps = finished_components.size();
       MPI_Send(&num_comps, 1, MPI_UNSIGNED, rank - step, 0, MPI_COMM_WORLD);
 
@@ -326,9 +335,6 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
 
     step = nstep;
   }
-
-  fprintf(stderr, "\n---------------\nProcessor %d:\nfinished communication succefully\n", rank);
-
 }
 
 // order of things:
@@ -343,11 +349,7 @@ Component generateMst( int n_rows ){
   std::vector<Component> finished_components;
   generateComponents(n_rows, finished_components);
 
-  // *************************************************************************************
-  // Combine results of various processors
-  // MPI_Barrier();
-  // *************************************************************************************
-
+  // Combine the results of the various processors
   mergeLevels(n_rows, finished_components);
 
 
@@ -384,7 +386,7 @@ main(int argc, char **argv)
     }
 
   //dump_nonzeros(n_rows, values, col_ind, row_ptr_begin, row_ptr_end);
-  fprintf(stderr, "what\n");
+  //fprintf(stderr, "what\n");
 
   // Initialize component id's for each row to -1
   for ( int i = 0; i < n_rows; i++ )
@@ -396,18 +398,17 @@ main(int argc, char **argv)
   std::vector<int> max_BFS_lvl;
   determineGraphs(n_rows, graph_sizes, max_BFS_lvl);
 
-  // *************************************************************************************
+  // Initialize MPI related matters
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
   createElementType();
-  // rank = 0;
-  // mpi_size = 2;
-  // *************************************************************************************
 
-  // // Debug output
-  // for ( int i = 0; i < n_rows; i++ )
-  //   fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
+  // Debug output
+  if ( rank == 0 ){
+    for ( int i = 0; i < n_rows; i++ )
+      fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
+  }
 
   // Determine processor distribution for each graph and compute mst
   std::vector<Component> finished_mst;
@@ -435,18 +436,19 @@ main(int argc, char **argv)
 
   // Write mst's to file
   if ( rank == 0 ){
+    debugComponents(finished_mst);
     // TODO
   }
 
 
-  // // Debug output
-  // for ( int i = 0; i < n_rows; i++ )
-  //   fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
+  // Debug output
+  if ( rank == 0 ){
+    for ( int i = 0; i < n_rows; i++ )
+      fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
+  }
 
-  // *************************************************************************************
   MPI_Type_free(&MPI_Element);
   MPI_Finalize();
-  // *************************************************************************************
 
   return 0;
 }
