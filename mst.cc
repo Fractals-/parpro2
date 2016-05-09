@@ -338,7 +338,7 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
           //     component_id[j][2] = cur_id;
           // }
           for ( j = 0; j < finished_components[k].nodes.size(); j++) {///////////////////////////
-            component_id[finished_components[k].nodes[j]][2] = cur_id;  ///////////////////////////
+            component_id[finished_components[k].nodes[j]][2] = cur_comp.id;  ////////////////////
             cur_comp.nodes.push_back(finished_components[k].nodes[j]);
           }
           // Merge the components
