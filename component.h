@@ -11,7 +11,7 @@ extern int component_id[max_n_rows][3];
 extern int graph; // The 'disconnected' graph currently being evaluated
 extern int rank; // The rank of the process
 
-struct Element{
+struct Element {
   double dist; // Distance/weight between nodes
   int col;     // Node outside of the component
   int from;    // The node in the component from which this edge actually runs
@@ -22,19 +22,36 @@ public:
   int id;          // Component id
   double weight;   // MST weight
   std::vector<Element> elements; // Connections from component
-//  std::vector<bool> nodes;       // Indicates which nodes are in this component
   std::vector<int> edges_source; // source + target = edge in MST
   std::vector<int> edges_target;
-  std::vector<int> nodes;
+  std::vector<int> nodes;        // Indicates which nodes are in this component
 
+  // Constructors
   Component( int tid );
   Component( int tid, int row_idx );
-  Component( int tid, Component &comp );
   ~Component();
 
+  /* Finds the closest node 'node' to the component
+   * Parameters:
+   *    node   - The target node closest to the component
+   *    source - The source node to the closest node
+   * Returns - True if a node was found, False if the component is complete
+   */
   bool findNextNode( int &node, int &source);
 
+  /* Adds the closest node 'node' to the component
+   * Parameters:
+   *    node   - The target node closest to the component
+   *    source - The source node to the closest node
+   */
   void addNode( int source, int node );
+
+  /* Adds the closest component 'comp' to the component given by the connection
+   * between 'node' and 'source'
+   * Parameters:
+   *    node   - The target node closest to the component
+   *    source - The source node to the closest node
+   */
   void addComponent( Component &comp, int node, int source );
 };
 

@@ -5,6 +5,8 @@ Component::Component( int tid ){
   id = tid;
 }
 
+// *************************************************************************************
+
 Component::Component( int tid, int row_idx ){
   id = tid;
   weight = 0.0;
@@ -24,22 +26,17 @@ Component::Component( int tid, int row_idx ){
   }
 }
 
-Component::Component( int tid, Component &comp ){
-  id = tid;
-  weight = comp.weight;
-
-  elements = comp.elements;
-  edges_source = comp.edges_source;
-  edges_target = comp.edges_target;
-}
+// *************************************************************************************
 
 Component::~Component(){
   elements.clear();
   edges_source.clear();
   edges_target.clear();
+  nodes.clear();
 }
 
-// Return = false means that this component can not be further expanded
+// *************************************************************************************
+
 bool Component::findNextNode( int &node, int &source ){
   unsigned int i;
   double min_value = DBL_MAX;
@@ -47,7 +44,6 @@ bool Component::findNextNode( int &node, int &source ){
   Element el;
   for ( i = 0; i < elements.size(); i++ ) {
     el = elements[i];
-    // fprintf(stderr, "node %.1f, %d, %d\n", el.dist, el.col, el.from);
     if ( el.dist < min_value ){
       min_value = el.dist;
       node = el.col;
@@ -55,13 +51,17 @@ bool Component::findNextNode( int &node, int &source ){
     }
   }
 
+  // Return false if the component can not be further expanded
   if ( node >= 0 )
     return true;
   else
     return false;
 }
 
+// *************************************************************************************
+
 void Component::addNode( int source, int node ){
+  // Update mst
   edges_source.push_back(source);
   edges_target.push_back(node);
 
@@ -69,6 +69,7 @@ void Component::addNode( int source, int node ){
   int j = row_ptr_begin[node],
       col = col_ind[j];
   Element el, nel;
+  // Create combined 'out-edge list'
   while ( i < elements.size() && j <= row_ptr_end[node]) {
     el = elements[i];
 
@@ -118,10 +119,13 @@ void Component::addNode( int source, int node ){
   }
 }
 
+// *************************************************************************************
+
 void Component::addComponent( Component &comp, int node, int source ){
   unsigned int i, j = 0;
 
   weight += comp.weight;
+  // Update mst
   for ( i = 0; i < comp.edges_source.size(); i++ ) {
     edges_source.push_back(comp.edges_source[i]);
     edges_target.push_back(comp.edges_target[i]);
@@ -131,6 +135,7 @@ void Component::addComponent( Component &comp, int node, int source ){
 
   i = 0;
   Element el, el2;
+  // Create combined 'out-edge list'
   while ( i < elements.size() && j < comp.elements.size() ) {
     el = elements[i];
     el2 = comp.elements[j];

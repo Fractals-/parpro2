@@ -276,9 +276,10 @@ Component receiveComponent( int n_rows, int cur_id, int target_rank ){
   MPI_Recv(&new_comp.edges_source[0], sizes[1], MPI_INT, target_rank, 4, MPI_COMM_WORLD, &status);
   MPI_Recv(&new_comp.edges_target[0], sizes[1], MPI_INT, target_rank, 5, MPI_COMM_WORLD, &status);
 
-  std::vector<int> ids;
+  //std::vector<int> ids;
   MPI_Recv(&ids_size, 1, MPI_UNSIGNED, target_rank, 6, MPI_COMM_WORLD, &status);
-  ids.resize(ids_size);
+  //ids.resize(ids_size);
+  new_comp.nodes.resize(ids_size);
   // MPI_Recv(&ids, ids_size, MPI_INT, target_rank, 7, MPI_COMM_WORLD, &status);
   MPI_Recv(&new_comp.nodes[0], ids_size, MPI_INT, target_rank, 7, MPI_COMM_WORLD, &status);
 
