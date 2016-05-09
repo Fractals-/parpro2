@@ -226,7 +226,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 // *************************************************************************************
 
 void sendComponent( Component& comp, int target_rank ){
-  unsigned int sizes[2];
+  unsigned int sizes[2], ids_size;
   sizes[0] = comp.elements.size();
   sizes[1] = comp.edges_source.size();
 
@@ -237,14 +237,23 @@ void sendComponent( Component& comp, int target_rank ){
   MPI_Send(&comp.edges_source[0], sizes[1], MPI_INT, target_rank, 4, MPI_COMM_WORLD);
   MPI_Send(&comp.edges_target[0], sizes[1], MPI_INT, target_rank, 5, MPI_COMM_WORLD);
 
-  MPI_Send(&comp.id, 1, MPI_INT, target_rank, 6, MPI_COMM_WORLD)
+  std::vector<int> ids;
+  for ( int i = 0; i < n_rows; i++ ){
+    if ( component_id[i][0] == graph && component_id[i][1] == target_rank &&
+         component_id[i][2] == id ) {
+      ids.push_back(i);
+    }
+  }
+  ids_size = ids.size();
+  MPI_Send(&ids_size, 1, MPI_UNSIGNED, target_rank, 6, MPI_COMM_WORLD);
+  MPI_Send(&ids, ids_size, MPI_INT, target_rank, 7, MPI_COMM_WORLD);
 }
 
 
 // *************************************************************************************
 
 Component receiveComponent( int n_rows, int cur_id, int target_rank ){
-  unsigned int sizes[2];
+  unsigned int sizes[2], ids_size, i;
   int id;
   MPI_Status status;
   MPI_Recv(&sizes, 2, MPI_UNSIGNED, target_rank, 1, MPI_COMM_WORLD, &status);
@@ -260,12 +269,14 @@ Component receiveComponent( int n_rows, int cur_id, int target_rank ){
   MPI_Recv(&new_comp.edges_source[0], sizes[1], MPI_INT, target_rank, 4, MPI_COMM_WORLD, &status);
   MPI_Recv(&new_comp.edges_target[0], sizes[1], MPI_INT, target_rank, 5, MPI_COMM_WORLD, &status);
 
-  MPI_Recv(&id, 1, MPI_INT, target_rank, 6, MPI_COMM_WORLD, &status);
+  std::vector<int> ids;
+  MPI_Recv(&ids_size, 1, MPI_UNSIGNED, target_rank, 6, MPI_COMM_WORLD, &status);
+  ids.resize(ids_size);
+  MPI_Recv(&ids, ids_size, MPI_INT, target_rank, 7, MPI_COMM_WORLD, &status);
 
-  for ( int i = 0; i < n_rows; i++ ){
-    if ( component_id[i][0] == graph && component_id[i][1] == target_rank &&
-         component_id[i][2] == id)
-      component_id[i][2] = cur_id;
+  for ( i = 0; i < ids_size; i++ ) {
+    component_id[ids[i]][1] = rank;
+    component_id[ids[i]][2] = cur_id;
   }
 
   return new_comp;
