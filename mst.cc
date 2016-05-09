@@ -202,8 +202,8 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
             //     component_id[j][2] = cur_id;
             // }
             for ( j = 0; j < finished_components[i].nodes.size(); j++) {///////////////////////////
-              component_id[finished_components.nodes[i]][2] = cur_id;  ///////////////////////////
-              cur_comp.nodes.push_back(finished_components.nodes[i]);
+              component_id[finished_components[i].nodes[j]][2] = cur_id;  ///////////////////////////
+              cur_comp.nodes.push_back(finished_components[i].nodes[j]);
             }
             // Merge the componentes
             cur_comp.addComponent(finished_components[i], node, source);
@@ -338,8 +338,8 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
           //     component_id[j][2] = cur_id;
           // }
           for ( j = 0; j < finished_components[k].nodes.size(); j++) {///////////////////////////
-            component_id[finished_components.nodes[k]][2] = cur_id;  ///////////////////////////
-            cur_comp.nodes.push_back(finished_components.nodes[k]);
+            component_id[finished_components[k].nodes[j]][2] = cur_id;  ///////////////////////////
+            cur_comp.nodes.push_back(finished_components[k].nodes[j]);
           }
           // Merge the components
           cur_comp.addComponent(finished_components[k], node, source);
