@@ -199,7 +199,6 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
             cur_comp.addComponent(finished_components[i], node, source);
             fprintf(stderr, "reached2 %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
             finished_components.erase(finished_components.begin() + i);
-            fprintf(stderr, "reached3 %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
             correct = true;
             break;
           }

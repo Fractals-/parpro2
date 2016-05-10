@@ -137,6 +137,7 @@ void Component::addNode( int source, int node ){
 void Component::addComponent( Component &comp, int node, int source ){
   unsigned int i, j = 0;
 
+  fprintf(stderr, "reached3 %d: %.2f\n", rank, MPI_Wtime() - start_time);
   weight += comp.weight;
   // Update mst
   for ( i = 0; i < comp.edges_source.size(); i++ ) {
@@ -145,6 +146,8 @@ void Component::addComponent( Component &comp, int node, int source ){
   }
   edges_source.push_back(source);
   edges_target.push_back(node);
+
+  fprintf(stderr, "reached4 %d: %.2f\n", rank, MPI_Wtime() - start_time);
 
   i = 0;
   Element el, el2;
@@ -180,6 +183,8 @@ void Component::addComponent( Component &comp, int node, int source ){
     }
   }
 
+  fprintf(stderr, "reached5 %d: %.2f\n", rank, MPI_Wtime() - start_time);
+
   // Add any remaining elements at the end
   while ( j < comp.elements.size() ) {
     el2 = comp.elements[j];
@@ -189,6 +194,8 @@ void Component::addComponent( Component &comp, int node, int source ){
     }
     j++;
   }
+
+  fprintf(stderr, "reached6 %d: %.2f\n", rank, MPI_Wtime() - start_time);
 
   // Remove any remaining edges to the new nodes
   while ( i < elements.size() ) {
