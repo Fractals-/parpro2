@@ -72,10 +72,6 @@ void Component::addNode( int source, int node ){
       col = col_ind[j];
   Element el, nel;
 
-  if ( node == 32555 ){
-    fprintf(stderr, "whanow %d: %d\n", id, component_id[node][2]);
-  }
-
   // Create combined 'out-edge list'
   while ( i < elements.size() && j <= row_ptr_end[node]) {
     el = elements[i];
@@ -84,8 +80,8 @@ void Component::addNode( int source, int node ){
       weight += el.dist;
       elements.erase(elements.begin() + i);
     }
-    else if ( col == node )
-      j++;
+    // else if ( col == node )
+    //   j++;
     else if ( col < el.col ) { // Insert edge to a 'new' vertex
       if ( component_id[col][0] == graph &&  // Correct graph
            !( component_id[col][1] == rank && component_id[col][2] == id ) ) { // No self edge
@@ -125,6 +121,13 @@ void Component::addNode( int source, int node ){
     }
     j++;
     col = col_ind[j];
+  }
+
+  if ( node == 32555 ){
+    fprintf(stderr, "whanow %d: %d\n", id, component_id[node][2]);
+
+    for ( i = 0; i < elements.size(); i++ )
+      fprintf(stderr, "wha  %.2f: %d: %d\n", elements[i].dist, elements[i].col, elements[i].from);
   }
 }
 
