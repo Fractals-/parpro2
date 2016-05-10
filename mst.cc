@@ -368,6 +368,7 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
       }
       found = cur_comp.findNextNode(node, source);
 
+      finished_components[i] = cur_comp;
       debugComponents(finished_components);
       fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
       // Debug output
