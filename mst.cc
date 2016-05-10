@@ -30,6 +30,7 @@ static int num_graphs; // The number of disconnected graphs
 
 MPI_Datatype MPI_Element;
 
+double start_time, end_time, elapsed_time;
 
 // *************************************************************************************
 
@@ -352,6 +353,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
     mod_rank = rank % nstep;
 
     // Allow each processor to first finish creating its components
+    fprintf(stderr, "finished this part %.2f", MPI_Wtime());
     MPI_Barrier(MPI_COMM_WORLD);
     fprintf(stderr, "finished this part %.2f", MPI_Wtime());
     
@@ -392,8 +394,12 @@ Component generateMst( int n_rows ){
   std::vector<Component> finished_components;
   generateComponents(n_rows, finished_components);
 
+  fprintf(stderr, "gen %d: %.2f\n", rank, MPI_Wtime() - start_time);
+
   // Combine the results of the various processors
   mergeLevels(finished_components);
+
+  fprintf(stderr, "merged %d: %.2f\n", rank, MPI_Wtime() - start_time);
 
   if ( finished_components.size() > 0 ){
     Component cur_comp = finished_components[0];
@@ -451,9 +457,7 @@ main(int argc, char **argv)
 
   // struct timespec start_time;
   // clock_gettime(CLOCK_REALTIME, &start_time);
-  double start_time = 0.0, end_time, elapsed_time;
-  //if ( rank == 0 )
-    start_time = MPI_Wtime();
+  start_time = MPI_Wtime();
 
   // Initialize component id's for each row to -1
   for ( int i = 0; i < n_rows; i++ )
