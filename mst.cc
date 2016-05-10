@@ -186,7 +186,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
         fprintf(stderr, "node2 %d: %.2f\n", rank, MPI_Wtime() - start_time);
       }
       else { // Merge with a previously finished component
-        fprintf(stderr, "comp1 %d: %d: %.2f\n", rank, node, MPI_Wtime() - start_time);
+        fprintf(stderr, "comp1 %d: %d: %d: %.2f\n", rank, node, component_id[node][2], MPI_Wtime() - start_time);
         for ( i = 0; i < finished_components.size(); i++ ) {
           if ( finished_components[i].id == component_id[node][2] ) {
             for ( j = 0; j < finished_components[i].nodes.size(); j++ ) {
@@ -485,7 +485,7 @@ main(int argc, char **argv)
   std::vector<Component> finished_mst;
   for ( graph = 0; graph < num_graphs; graph++ ){
     fprintf(stderr, "Graph %d: %d: %d\n", graph, rank, graph_sizes[graph]);
-    if ( graph_sizes[graph] > 3 ) {// Otherwise parallelization is unlikely to be helpful
+    if ( graph_sizes[graph] > 1000 ) {// Otherwise parallelization is unlikely to be helpful
       determineComponents(n_rows, graph_sizes[graph], max_BFS_lvl[graph]);
       fprintf(stderr, "time %d: %d: %.2f\n", graph, rank, MPI_Wtime() - start_time);
       Component comp = generateMst(n_rows);
