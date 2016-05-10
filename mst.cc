@@ -204,7 +204,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
           fprintf(stderr, "comp %d: %d: %d: %d: %d: %.2f\n", rank, node, component_id[node][2], component_id[node][1], component_id[node][0], MPI_Wtime() - start_time);
 
           for ( i = 0; i < cur_comp.elements.size(); i++ )
-            fprintf(stderr, "wha  %.2f: %d: %d\n", cur_comp.elements[i].dist, elements[i].col, elements[i].from);
+            fprintf(stderr, "wha  %.2f: %d: %d\n", cur_comp.elements[i].dist, cur_comp.elements[i].col, cur_comp.elements[i].from);
 
           MPI_Finalize();
           abort();
