@@ -128,7 +128,7 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
     lvl_size[component_id[i][1]]++;
   
   for ( i = 0; i < n_rows; i++ )
-    fprintf(stderr, "Graph %d: %d: %d", graph, rank, lvl_size[i];
+    fprintf(stderr, "Graph %d: %d: %d", graph, rank, lvl_size[i]);
 
   // Determine which BFS levels are assigned to which processor
   curlvl = 0;
@@ -481,7 +481,7 @@ main(int argc, char **argv)
       fprintf(stderr, "Graph %d: %d", graph, rank);
       Component comp = generateMst(n_rows);
       if ( rank == 0 ){
-        fprintf(stderr, "Graph %d: %d: %d", graph, rank, comp.size());
+        fprintf(stderr, "Graph %d: %d: %d", graph, rank, comp.nodes.size());
         finished_mst.push_back(comp);
       }
     }
