@@ -30,7 +30,7 @@ static int num_graphs; // The number of disconnected graphs
 
 MPI_Datatype MPI_Element;
 
-double start_time, end_time, elapsed_time;
+double start_time;
 
 // *************************************************************************************
 
@@ -430,7 +430,7 @@ Component generateMst( int n_rows ){
 
 void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
   unsigned int i, j;
-  fprintf(stdout, "\n---------------\nElapsed time %.4f:\n", elapsed_time);
+  fprintf(stdout, "\nElapsed time %.4f\n---------------\n", elapsed_time);
   for ( i = 0; i < finished_mst.size(); i++ ) {
     Component comp = finished_mst[i];
     fprintf(stdout, "\nMST %d:\n", i);
@@ -439,7 +439,7 @@ void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
       fprintf(stdout, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
     }
   }
-  fprintf(stdout, "\n---------------\nElapsed time %.4f:\n", elapsed_time);
+  fprintf(stdout, "\n---------------\nElapsed time %.4f\n", elapsed_time);
 }
 
 // *************************************************************************************
@@ -472,8 +472,6 @@ main(int argc, char **argv)
   MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
   createElementType();
 
-  // struct timespec start_time;
-  // clock_gettime(CLOCK_REALTIME, &start_time);
   start_time = MPI_Wtime();
 
   // Initialize component id's for each row to -1
@@ -522,25 +520,10 @@ main(int argc, char **argv)
 
   // Write mst's to file
   if ( rank == 0 ){
-    // debugComponents(finished_mst);
     // Compute elapsed time
-    // struct timespec end_time, elapsed_time;
-    // clock_gettime(CLOCK_REALTIME, &end_time);
-    // timespec_subtract(&elapsed_time, &end_time, &start_time);
-    end_time = MPI_Wtime();
-    elapsed_time = end_time - start_time;
-    // double elapsed = (double)elapsed_time.tv_sec +
-    //     (double)elapsed_time.tv_nsec / 1000000000.0;
-    // fprintf(stderr, "elapsed time: %f s\n", elapsed_time);
+    double elapsed_time = MPI_Wtime() - start_time;
     outputMST(elapsed_time, finished_mst);
-    // TODO
   }
-
-  // // Debug output
-  // if ( rank == 0 ){
-  //   for ( int i = 0; i < n_rows; i++ )
-  //     fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
-  // }
 
   MPI_Type_free(&MPI_Element);
   MPI_Finalize();
