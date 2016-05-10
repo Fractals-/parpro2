@@ -52,7 +52,6 @@ bool Component::findNextNode( int &node, int &source ){
     }
   }
 
-  //fprintf(stderr, "%d: %d: %d\n", (int) elements.size(), node, id);
   // Return false if the component can not be further expanded
   if ( node >= 0 )
     return true;
@@ -71,7 +70,6 @@ void Component::addNode( int source, int node ){
   int j = row_ptr_begin[node],
       col = col_ind[j];
   Element el, nel;
-
   // Create combined 'out-edge list'
   while ( i < elements.size() && j <= row_ptr_end[node]) {
     el = elements[i];
@@ -123,11 +121,14 @@ void Component::addNode( int source, int node ){
     col = col_ind[j];
   }
 
-  if ( node == 32555 || node == 7182 ){
-    fprintf(stderr, "whanow %d: %d\n", id, component_id[node][2]);
-
-    for ( i = 0; i < elements.size(); i++ )
-      fprintf(stderr, "wha  %.2f: %d: %d\n", elements[i].dist, elements[i].col, elements[i].from);
+  // Remove any remaining edges to the new node
+  while ( i < elements.size() ) {
+    if ( elements[i].col == node ){
+      weight += elements[i].dist;
+      elements.erase(elements.begin() + i);
+      return;
+    }
+    i++;
   }
 }
 
@@ -187,5 +188,16 @@ void Component::addComponent( Component &comp, int node, int source ){
       elements.push_back(el2);
     }
     j++;
+  }
+
+  // Remove any remaining edges to the new nodes
+  while ( i < elements.size() ) {
+    el = comp.elements[i];
+    if ( component_id[el.col][0] == graph &&  // Correct graph
+         !( component_id[el.col][1] == rank && component_id[el.col][2] == id ) ) { // No self edge
+      weight += el.dist;
+      elements.erase(elements.begin() + i);
+    }
+    i++;
   }
 }
