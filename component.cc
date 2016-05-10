@@ -45,7 +45,7 @@ bool Component::findNextNode( int &node, int &source ){
 
   for ( i = 0; i < elements.size(); i++ ) {
     el = elements[i];
-    if ( el.dist < min_value ){
+    if ( el.dist < min_value && component_id[el.col][2] != id  ){
       min_value = el.dist;
       node = el.col;
       source = el.from;
@@ -78,8 +78,6 @@ void Component::addNode( int source, int node ){
       weight += el.dist;
       elements.erase(elements.begin() + i);
     }
-    // else if ( col == node )
-    //   j++;
     else if ( col < el.col ) { // Insert edge to a 'new' vertex
       if ( component_id[col][0] == graph &&  // Correct graph
            !( component_id[col][1] == rank && component_id[col][2] == id ) ) { // No self edge
@@ -193,9 +191,13 @@ void Component::addComponent( Component &comp, int node, int source ){
   // Remove any remaining edges to the new nodes
   while ( i < elements.size() ) {
     el = elements[i];
-    if ( component_id[el.col][0] == graph &&  // Correct graph
-         !( component_id[el.col][1] == rank && component_id[el.col][2] == id ) ) { // No self edge
+    if ( el.col == node ){
       weight += el.dist;
+      elements.erase(elements.begin() + i);
+      i--;
+    }
+    else if ( component_id[el.col][0] == graph &&  // Correct graph
+         !( component_id[el.col][1] == rank && component_id[el.col][2] == id ) ) { // No self edge
       elements.erase(elements.begin() + i);
       i--;
     }
