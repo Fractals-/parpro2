@@ -119,10 +119,13 @@ load_elements(const std::vector<Element> &elements,
     {
       if (it->row != current_row)
         {
-          if (current_row + 1 != it->row)
+          while (current_row + 1 != it->row)
             {
-              fprintf(stderr, "Row skipping not implemented.\n");
-              abort();
+              row_ptr_end[current_row] = current_val - 1;
+              current_row++;
+              row_ptr_begin[current_row] = current_val;
+              // fprintf(stderr, "Row skipping not implemented.\n");
+              // abort();
             }
 
           row_ptr_end[current_row] = current_val - 1;
