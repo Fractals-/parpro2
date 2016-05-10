@@ -123,7 +123,7 @@ void Component::addNode( int source, int node ){
     col = col_ind[j];
   }
 
-  if ( node == 32555 ){
+  if ( node == 32555 || node == 7182 ){
     fprintf(stderr, "whanow %d: %d\n", id, component_id[node][2]);
 
     for ( i = 0; i < elements.size(); i++ )
