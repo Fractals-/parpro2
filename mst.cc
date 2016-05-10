@@ -2,6 +2,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <algorithm>
+#include <fstream>
 #include <cmath>
 #include "mpi.h"
 
@@ -9,37 +10,37 @@
 #include "matrix.h"
 #include "component.h"
 
-/* Code taken from the GLIBC manual.
- *
- * Subtract the ‘struct timespec’ values X and Y,
- * storing the result in RESULT.
- * Return 1 if the difference is negative, otherwise 0.
- */
-static int
-timespec_subtract (struct timespec *result,
-                   struct timespec *x,
-                   struct timespec *y)
-{
-  /* Perform the carry for the later subtraction by updating y. */
-  if (x->tv_nsec < y->tv_nsec) {
-    int nsec = (y->tv_nsec - x->tv_nsec) / 1000000000 + 1;
-    y->tv_nsec -= 1000000000 * nsec;
-    y->tv_sec += nsec;
-  }
-  if (x->tv_nsec - y->tv_nsec > 1000000000) {
-    int nsec = (x->tv_nsec - y->tv_nsec) / 1000000000;
-    y->tv_nsec += 1000000000 * nsec;
-    y->tv_sec -= nsec;
-  }
+// /* Code taken from the GLIBC manual.
+//  *
+//  * Subtract the ‘struct timespec’ values X and Y,
+//  * storing the result in RESULT.
+//  * Return 1 if the difference is negative, otherwise 0.
+//  */
+// static int
+// timespec_subtract (struct timespec *result,
+//                    struct timespec *x,
+//                    struct timespec *y)
+// {
+//   /* Perform the carry for the later subtraction by updating y. */
+//   if (x->tv_nsec < y->tv_nsec) {
+//     int nsec = (y->tv_nsec - x->tv_nsec) / 1000000000 + 1;
+//     y->tv_nsec -= 1000000000 * nsec;
+//     y->tv_sec += nsec;
+//   }
+//   if (x->tv_nsec - y->tv_nsec > 1000000000) {
+//     int nsec = (x->tv_nsec - y->tv_nsec) / 1000000000;
+//     y->tv_nsec += 1000000000 * nsec;
+//     y->tv_sec -= nsec;
+//   }
 
-  /* Compute the time remaining to wait.
-     tv_nsec is certainly positive. */
-  result->tv_sec = x->tv_sec - y->tv_sec;
-  result->tv_nsec = x->tv_nsec - y->tv_nsec;
+//   /* Compute the time remaining to wait.
+//      tv_nsec is certainly positive. */
+//   result->tv_sec = x->tv_sec - y->tv_sec;
+//   result->tv_nsec = x->tv_nsec - y->tv_nsec;
 
-  /* Return 1 if result is negative. */
-  return x->tv_sec < y->tv_sec;
-}
+//   /* Return 1 if result is negative. */
+//   return x->tv_sec < y->tv_sec;
+// }
 
 /* Global variables holding the matrix data.
  * And global variables holding mpi information.
@@ -322,6 +323,7 @@ void debugComponents( std::vector<Component> finished_components ){
 }
 
 // *************************************************************************************
+////////////////////////////////////////////////////////////////////////////////////////
 
 /* Combine the components from this 'subgraph' as much as possible
  * Parameters:
@@ -335,6 +337,7 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
 
   // For each component, attempt to merge it with another
   while ( i < finished_components.size() ) {
+    fprintf(stderr, "\nComponent %d: %d\n", i, finished_components.size());
     Component cur_comp = finished_components[i];
     found = cur_comp.findNextNode(node, source);
 
@@ -342,7 +345,7 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
     while ( found && component_id[node][1] == rank ) {
       for ( k = 0; k < finished_components.size(); k++ ) {
         if ( finished_components[k].id == component_id[node][2] ) {
-          for ( j = 0; j < finished_components[k].nodes.size(); j++) {
+          for ( j = 0; j < finished_components[k].nodes.size(); j++ ) {
             component_id[finished_components[k].nodes[j]][2] = cur_comp.id;
             cur_comp.nodes.push_back(finished_components[k].nodes[j]);
           }
@@ -436,6 +439,27 @@ Component generateMst( int n_rows ){
 
 // *************************************************************************************
 
+void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
+  ofstream out;
+  unsigned int i, j;
+
+  out.open("mstfile.txt", ios::out);
+  if ( out.is_open() ) {
+    out << "Elapsed time: " << elapsed_time << "s" << endl << endl;
+
+    for ( i = 0; i < finished_mst.size(); i++ ){
+      out << "MST " << i << ":" << endl;
+      Component comp = finished_mst[i]
+      out << "weight = " << comp.weight << endl;
+      for ( j = 0; j < comp.edges_source.size(); j++ )
+        out << comp.edges_source[j] << " " << comp.edges_target[j] << endl;
+    }
+  }
+  out.close();
+}
+
+// *************************************************************************************
+
 int
 main(int argc, char **argv)
 {
@@ -465,7 +489,7 @@ main(int argc, char **argv)
 
   // struct timespec start_time;
   // clock_gettime(CLOCK_REALTIME, &start_time);
-  double start_time, end_time, elapsed_time;
+  double start_time = 0.0, end_time, elapsed_time;
   if ( rank == 0 )
     start_time = MPI_Wtime();
 
@@ -521,6 +545,7 @@ main(int argc, char **argv)
     // double elapsed = (double)elapsed_time.tv_sec +
     //     (double)elapsed_time.tv_nsec / 1000000000.0;
     fprintf(stderr, "elapsed time: %f s\n", elapsed_time);
+    outputMST(elapsed_time, finished_mst);
     // TODO
   }
 
