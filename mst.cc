@@ -126,6 +126,9 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
     lvl_size[i] = 0;
   for ( i = 0; i < n_rows; i++ )
     lvl_size[component_id[i][1]]++;
+  
+  for ( i = 0; i < n_rows; i++ )
+    fprintf(stderr, "Graph %d: %d: %d", graph, rank, lvl_size[i];
 
   // Determine which BFS levels are assigned to which processor
   curlvl = 0;
@@ -472,12 +475,15 @@ main(int argc, char **argv)
   // Determine processor distribution for each graph and compute the MST
   std::vector<Component> finished_mst;
   for ( graph = 0; graph < num_graphs; graph++ ){
-    fprintf(stderr, "Graph %d: %d", graph, graph_sizes[graph]);
+    fprintf(stderr, "Graph %d: %d: %d", graph, rank, graph_sizes[graph]);
     if ( graph_sizes[graph] > 3 ) {// Otherwise parallelization is unlikely to be helpful
       determineComponents(n_rows, graph_sizes[graph], max_BFS_lvl[graph]);
+      fprintf(stderr, "Graph %d: %d", graph, rank);
       Component comp = generateMst(n_rows);
-      if ( rank == 0 )
+      if ( rank == 0 ){
+        fprintf(stderr, "Graph %d: %d: %d", graph, rank, comp.size());
         finished_mst.push_back(comp);
+      }
     }
     else{ // Perform sequential execution
       for ( int i = 0; i < max_n_rows; i++ ){

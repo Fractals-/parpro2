@@ -119,7 +119,7 @@ load_elements(const std::vector<Element> &elements,
     {
       if (it->row != current_row)
         {
-          while (current_row + 1 < it->row)
+          while (current_row + 1 != it->row)
             {
               row_ptr_end[current_row] = current_val - 1;
               current_row++;
