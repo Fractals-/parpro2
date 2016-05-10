@@ -184,7 +184,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
         cur_comp.nodes.push_back(node);
       }
       else { // Merge with a previously finished component
-        fprintf(stderr, "comp %d: %d: %d: %d: %d: %.2f\n", rank, node, component_id[node][2], component_id[node][1], component_id[node][0], MPI_Wtime() - start_time);
+        //fprintf(stderr, "comp %d: %d: %d: %d: %d: %.2f\n", rank, node, component_id[node][2], component_id[node][1], component_id[node][0], MPI_Wtime() - start_time);
         correct = false;
 
         for ( i = 0; i < finished_components.size(); i++ ) {
@@ -194,18 +194,16 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
               component_id[tnode][2] = cur_id;
               cur_comp.nodes.push_back(tnode);
             }
-            fprintf(stderr, "reached1 %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
+            //fprintf(stderr, "reached1 %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
             // Merge the components
             cur_comp.addComponent(finished_components[i], node, source);
-            fprintf(stderr, "reached2 %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
+            //fprintf(stderr, "reached2 %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
             finished_components.erase(finished_components.begin() + i);
             correct = true;
             break;
           }
         }
         if ( !correct ){
-          
-
           for ( i = 0; i < cur_comp.elements.size(); i++ )
             fprintf(stderr, "wha  %.2f: %d: %d\n", cur_comp.elements[i].dist, cur_comp.elements[i].col, cur_comp.elements[i].from);
 
