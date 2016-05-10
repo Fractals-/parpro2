@@ -169,7 +169,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 
   // As long as there is node that is not yet in a component continue
   while ( min_row < n_rows ) {
-    fprintf(stderr, "gen %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
+    //fprintf(stderr, "gen %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
     Component cur_comp(cur_id, min_row);
     component_id[min_row][2] = cur_id;
     cur_comp.nodes.push_back(min_row);
@@ -184,7 +184,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
         cur_comp.nodes.push_back(node);
       }
       else { // Merge with a previously finished component
-        fprintf(stderr, "comp %d: %d: %d: %d: %d: %.2f\n", rank, node, component_id[node][2], component_id[node][1], component_id[node][0], MPI_Wtime() - start_time);
+        //fprintf(stderr, "comp %d: %d: %d: %d: %d: %.2f\n", rank, node, component_id[node][2], component_id[node][1], component_id[node][0], MPI_Wtime() - start_time);
         correct = false;
 
         for ( i = 0; i < finished_components.size(); i++ ) {
@@ -214,7 +214,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 
       found = cur_comp.findNextNode(node, source);
     }
-    fprintf(stderr, "reach %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
+    //fprintf(stderr, "reach %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
     // Current component can no longer be expanded using available nodes
     finished_components.push_back(cur_comp);
     cur_id++;
@@ -290,25 +290,25 @@ Component receiveComponent( int cur_id, int target_rank ){
 
 // *************************************************************************************
 ////////////////////////////////////////////////////////////////////////////////////////
-void debugComponents( std::vector<Component> finished_components ){
-  // DEBUG THE COMMUNICATION HERE
-  unsigned int i, j;
-  fprintf(stderr, "\n---------------\nProcessor %d:\n", rank);
-  for ( i = 0; i < finished_components.size(); i++ ) {
-    Component comp = finished_components[i];
-    fprintf(stderr, "\nComponent %d:\n", comp.id);
-    fprintf(stderr, "%d, %d: id = %d\n", rank, i, comp.id);
-    fprintf(stderr, "%d, %d: weight = %.1f\n", rank, i, comp.weight);
-    for ( j = 0; j < comp.elements.size(); j++ ){
-      Element el = comp.elements[j];
-      fprintf(stderr, "%d, %d: edge: %.1f, %d, %d\n", rank, i, el.dist, el.col, el.from);
-    }
-    fprintf(stderr, "\n");
-    for ( j = 0; j < comp.edges_source.size(); j++ ){
-      fprintf(stderr, "%d, %d: path: %d, %d\n", rank, i, comp.edges_source[j], comp.edges_target[j]);
-    }
-  }
-}
+// void debugComponents( std::vector<Component> finished_components ){
+//   // DEBUG THE COMMUNICATION HERE
+//   unsigned int i, j;
+//   fprintf(stderr, "\n---------------\nProcessor %d:\n", rank);
+//   for ( i = 0; i < finished_components.size(); i++ ) {
+//     Component comp = finished_components[i];
+//     fprintf(stderr, "\nComponent %d:\n", comp.id);
+//     fprintf(stderr, "%d, %d: id = %d\n", rank, i, comp.id);
+//     fprintf(stderr, "%d, %d: weight = %.1f\n", rank, i, comp.weight);
+//     for ( j = 0; j < comp.elements.size(); j++ ){
+//       Element el = comp.elements[j];
+//       fprintf(stderr, "%d, %d: edge: %.1f, %d, %d\n", rank, i, el.dist, el.col, el.from);
+//     }
+//     fprintf(stderr, "\n");
+//     for ( j = 0; j < comp.edges_source.size(); j++ ){
+//       fprintf(stderr, "%d, %d: path: %d, %d\n", rank, i, comp.edges_source[j], comp.edges_target[j]);
+//     }
+//   }
+// }
 
 // *************************************************************************************
 
@@ -369,9 +369,9 @@ void mergeLevels( std::vector<Component>& finished_components ){
     mod_rank = rank % nstep;
 
     // Allow each processor to first finish creating its components
-    fprintf(stderr, "finished this part %.2f", MPI_Wtime());
+    // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
     MPI_Barrier(MPI_COMM_WORLD);
-    fprintf(stderr, "finished this part %.2f", MPI_Wtime());
+    // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
     
     if ( mod_rank == 0 ){
       // Receive components from 'rank + step' and integrate them
@@ -410,12 +410,12 @@ Component generateMst( int n_rows ){
   std::vector<Component> finished_components;
   generateComponents(n_rows, finished_components);
 
-  fprintf(stderr, "gen %d: %.2f\n", rank, MPI_Wtime() - start_time);
+  // fprintf(stderr, "gen %d: %.2f\n", rank, MPI_Wtime() - start_time);
 
   // Combine the results of the various processors
   mergeLevels(finished_components);
 
-  fprintf(stderr, "merged %d: %.2f\n", rank, MPI_Wtime() - start_time);
+  // fprintf(stderr, "merged %d: %.2f\n", rank, MPI_Wtime() - start_time);
 
   if ( finished_components.size() > 0 ){
     Component cur_comp = finished_components[0];
@@ -430,15 +430,16 @@ Component generateMst( int n_rows ){
 
 void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
   unsigned int i, j;
-  fprintf(stderr, "\n---------------\nElapsed time %.4f:\n", elapsed_time);
+  fprintf(stdout, "\n---------------\nElapsed time %.4f:\n", elapsed_time);
   for ( i = 0; i < finished_mst.size(); i++ ) {
     Component comp = finished_mst[i];
-    fprintf(stderr, "\nMST %d:\n", i);
-    fprintf(stderr, "weight = %.4f\n", comp.weight);
+    fprintf(stdout, "\nMST %d:\n", i);
+    fprintf(stdout, "weight = %.4f\n", comp.weight);
     for ( j = 0; j < comp.edges_source.size(); j++ ){
-      fprintf(stderr, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
+      fprintf(stdout, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
     }
   }
+  fprintf(stdout, "\n---------------\nElapsed time %.4f:\n", elapsed_time);
 }
 
 // *************************************************************************************
@@ -494,13 +495,13 @@ main(int argc, char **argv)
   // Determine processor distribution for each graph and compute the MST
   std::vector<Component> finished_mst;
   for ( graph = 0; graph < num_graphs; graph++ ){
-    fprintf(stderr, "Graph %d: %d: %d: %d\n", graph, rank, graph_sizes[graph], num_graphs);
+    // fprintf(stderr, "Graph %d: %d: %d: %d\n", graph, rank, graph_sizes[graph], num_graphs);
     if ( graph_sizes[graph] > 1000 ) {// Otherwise parallelization is unlikely to be helpful
       determineComponents(n_rows, graph_sizes[graph], max_BFS_lvl[graph]);
-      fprintf(stderr, "time %d: %d: %.2f\n", graph, rank, MPI_Wtime() - start_time);
+      // fprintf(stderr, "time %d: %d: %.2f\n", graph, rank, MPI_Wtime() - start_time);
       Component comp = generateMst(n_rows);
       if ( rank == 0 ){
-        fprintf(stderr, "Graph %d: %d: %d\n", graph, rank, (int) comp.nodes.size());
+        // fprintf(stderr, "Graph %d: %d: %d\n", graph, rank, (int) comp.nodes.size());
         finished_mst.push_back(comp);
       }
     }
