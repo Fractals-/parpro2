@@ -186,6 +186,8 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
       else { // Merge with a previously finished component
         correct = false;
 
+        fprintf(stderr, "comp %d: %d: %d: %d: %.2f\n", rank, node, component_id[node][2], component_id[node][1], MPI_Wtime() - start_time);
+
         for ( i = 0; i < finished_components.size(); i++ ) {
           if ( finished_components[i].id == component_id[node][2] ) {
             for ( j = 0; j < finished_components[i].nodes.size(); j++ ) {
@@ -487,7 +489,7 @@ main(int argc, char **argv)
   // Determine processor distribution for each graph and compute the MST
   std::vector<Component> finished_mst;
   for ( graph = 0; graph < num_graphs; graph++ ){
-    fprintf(stderr, "Graph %d: %d: %d\n", graph, rank, graph_sizes[graph]);
+    fprintf(stderr, "Graph %d: %d: %d: %d\n", graph, rank, graph_sizes[graph], num_graphs);
     if ( graph_sizes[graph] > 1000 ) {// Otherwise parallelization is unlikely to be helpful
       determineComponents(n_rows, graph_sizes[graph], max_BFS_lvl[graph]);
       fprintf(stderr, "time %d: %d: %.2f\n", graph, rank, MPI_Wtime() - start_time);
@@ -497,7 +499,7 @@ main(int argc, char **argv)
         finished_mst.push_back(comp);
       }
     }
-    else{ // Perform sequential execution
+    else if ( graph_sizes[graph] > 1 ) { // No mst exist for graphs of size 1
       for ( int i = 0; i < max_n_rows; i++ ){
         if ( component_id[i][0] == graph )
           component_id[i][1] = 0;
