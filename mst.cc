@@ -214,6 +214,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 
       found = cur_comp.findNextNode(node, source);
     }
+    fprintf(stderr, "reach %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
     // Current component can no longer be expanded using available nodes
     finished_components.push_back(cur_comp);
     cur_id++;
