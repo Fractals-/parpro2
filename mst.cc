@@ -472,6 +472,7 @@ main(int argc, char **argv)
   // Determine processor distribution for each graph and compute the MST
   std::vector<Component> finished_mst;
   for ( graph = 0; graph < num_graphs; graph++ ){
+    fprintf(stderr, "Graph %d: %d", graph, graph_sizes[graph]);
     if ( graph_sizes[graph] > 3 ) {// Otherwise parallelization is unlikely to be helpful
       determineComponents(n_rows, graph_sizes[graph], max_BFS_lvl[graph]);
       Component comp = generateMst(n_rows);
