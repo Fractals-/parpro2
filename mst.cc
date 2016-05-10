@@ -2,7 +2,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <algorithm>
-#include <fstream>
+//#include <fstream>
 #include <cmath>
 #include "mpi.h"
 
@@ -440,22 +440,22 @@ Component generateMst( int n_rows ){
 // *************************************************************************************
 
 void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
-  ofstream out;
-  unsigned int i, j;
+  // ofstream out;
+  // unsigned int i, j;
 
-  out.open("mstfile.txt", ios::out);
-  if ( out.is_open() ) {
-    out << "Elapsed time: " << elapsed_time << "s" << endl << endl;
+  // out.open("mstfile.txt", ios::out);
+  // if ( out.is_open() ) {
+  //   out << "Elapsed time: " << elapsed_time << "s" << endl << endl;
 
-    for ( i = 0; i < finished_mst.size(); i++ ){
-      out << "MST " << i << ":" << endl;
-      Component comp = finished_mst[i]
-      out << "weight = " << comp.weight << endl;
-      for ( j = 0; j < comp.edges_source.size(); j++ )
-        out << comp.edges_source[j] << " " << comp.edges_target[j] << endl;
-    }
-  }
-  out.close();
+  //   for ( i = 0; i < finished_mst.size(); i++ ){
+  //     out << "MST " << i << ":" << endl;
+  //     Component comp = finished_mst[i]
+  //     out << "weight = " << comp.weight << endl;
+  //     for ( j = 0; j < comp.edges_source.size(); j++ )
+  //       out << comp.edges_source[j] << " " << comp.edges_target[j] << endl;
+  //   }
+  // }
+  // out.close();
 }
 
 // *************************************************************************************
