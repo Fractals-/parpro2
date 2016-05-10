@@ -367,10 +367,9 @@ void combineComponents( std::vector<Component>& finished_components ){
 
 /* Combines the components found for all processors into a single component
  * Parameters:
- *    n_rows              - The number of rows in the matrix
  *    finished_components - The components of this processor
  */
-void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
+void mergeLevels( std::vector<Component>& finished_components ){
   int step = 1; // Stores the current step size
   int nstep, mod_rank,
       cur_id = finished_components[((int) finished_components.size() - 1)].id + 1;
@@ -423,7 +422,7 @@ Component generateMst( int n_rows ){
   generateComponents(n_rows, finished_components);
 
   // Combine the results of the various processors
-  mergeLevels(n_rows, finished_components);
+  mergeLevels(finished_components);
 
   if ( finished_components.size() > 0 ){
     Component cur_comp = finished_components[0];
