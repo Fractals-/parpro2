@@ -308,7 +308,7 @@ void debugComponents( std::vector<Component> finished_components ){
   fprintf(stderr, "\n---------------\nProcessor %d:\n", rank);
   for ( i = 0; i < finished_components.size(); i++ ) {
     Component comp = finished_components[i];
-    fprintf(stderr, "\nComponent %d:\n", i);
+    fprintf(stderr, "\nComponent %d:\n", comp.id);
     fprintf(stderr, "%d, %d: id = %d\n", rank, i, comp.id);
     fprintf(stderr, "%d, %d: weight = %.1f\n", rank, i, comp.weight);
     for ( j = 0; j < comp.elements.size(); j++ ){
@@ -343,7 +343,11 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
 
     debugComponents(finished_components);
     fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
-    return;
+    // Debug output
+    if ( rank == 0 ){
+      for ( int i = 0; i < n_rows; i++ )
+        fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
+    }
 
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
@@ -363,6 +367,15 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
         }
       }
       found = cur_comp.findNextNode(node, source);
+
+      debugComponents(finished_components);
+      fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
+      // Debug output
+      if ( rank == 0 ){
+      for ( int i = 0; i < n_rows; i++ )
+        fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
+      }
+      return;
     }
 
     finished_components[i] = cur_comp;
