@@ -481,7 +481,7 @@ main(int argc, char **argv)
       fprintf(stderr, "Graph %d: %d\n", graph, rank);
       Component comp = generateMst(n_rows);
       if ( rank == 0 ){
-        fprintf(stderr, "Graph %d: %d: %d\n", graph, rank, comp.nodes.size());
+        fprintf(stderr, "Graph %d: %d: %d\n", graph, rank, (int) comp.nodes.size());
         finished_mst.push_back(comp);
       }
     }
