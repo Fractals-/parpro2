@@ -513,7 +513,7 @@ main(int argc, char **argv)
     struct timespec end_time;
     clock_gettime(CLOCK_REALTIME, &end_time);
     timespec_subtract(&elapsed_time, &end_time, &start_time);
-    elapsed = (double)elapsed_time.tv_sec +
+    double elapsed = (double)elapsed_time.tv_sec +
         (double)elapsed_time.tv_nsec / 1000000000.0;
     fprintf(stderr, "elapsed time: %f s\n", elapsed);
     // TODO
