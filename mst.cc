@@ -327,10 +327,9 @@ void debugComponents( std::vector<Component> finished_components ){
 
 /* Combine the components from this 'subgraph' as much as possible
  * Parameters:
- *    n_rows              - The number of rows in the matrix
  *    finished_components - The components of this 'subgraph'
  */
-void combineComponents( int n_rows, std::vector<Component>& finished_components ){
+void combineComponents( std::vector<Component>& finished_components ){
   int node, source;
   unsigned int i = 0, j, k;
   bool found;
@@ -365,7 +364,6 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
 }
 
 // *************************************************************************************
-////////////////////////////////////////////////////////////////////////////////////////
 
 /* Combines the components found for all processors into a single component
  * Parameters:
@@ -398,7 +396,7 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
       }
 
       // Integrate/combine the components
-      combineComponents(n_rows, finished_components);
+      combineComponents(finished_components);
     }
     else if ( mod_rank - step == 0 ){
       // Send components to 'rank - step'
