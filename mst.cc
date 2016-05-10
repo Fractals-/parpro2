@@ -324,7 +324,6 @@ void debugComponents( std::vector<Component> finished_components ){
 }
 
 // *************************************************************************************
-////////////////////////////////////////////////////////////////////////////////////////
 
 /* Combine the components from this 'subgraph' as much as possible
  * Parameters:
@@ -338,21 +337,11 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
 
   // For each component, attempt to merge it with another
   while ( i < finished_components.size() ) {
-    fprintf(stderr, "\nComponent %d: %d\n", i, (int)finished_components.size());
     Component cur_comp = finished_components[i];
     found = cur_comp.findNextNode(node, source);
 
-    // debugComponents(finished_components);
-    // fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
-    // // Debug output
-    // if ( rank == 0 ){
-    //   for ( int i = 0; i < n_rows; i++ )
-    //     fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
-    // }
-
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
-      //fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
       for ( k = 0; k < finished_components.size(); k++ ) {
         if ( finished_components[k].id == component_id[node][2] ) {
           for ( j = 0; j < finished_components[k].nodes.size(); j++ ) {
@@ -368,16 +357,6 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
         }
       }
       found = cur_comp.findNextNode(node, source);
-
-      // finished_components[i] = cur_comp;
-      // debugComponents(finished_components);
-      // fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
-      // // Debug output
-      // if ( rank == 0 ){
-      // for ( int i = 0; i < n_rows; i++ )
-      //   fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
-      // }
-      // return;
     }
 
     finished_components[i] = cur_comp;
@@ -470,26 +449,10 @@ void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
       fprintf(stderr, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
     }
   }
-
-  // ofstream out;
-  // unsigned int i, j;
-
-  // out.open("mstfile.txt", ios::out);
-  // if ( out.is_open() ) {
-  //   out << "Elapsed time: " << elapsed_time << "s" << endl << endl;
-
-  //   for ( i = 0; i < finished_mst.size(); i++ ){
-  //     out << "MST " << i << ":" << endl;
-  //     Component comp = finished_mst[i]
-  //     out << "weight = " << comp.weight << endl;
-  //     for ( j = 0; j < comp.edges_source.size(); j++ )
-  //       out << comp.edges_source[j] << " " << comp.edges_target[j] << endl;
-  //   }
-  // }
-  // out.close();
 }
 
 // *************************************************************************************
+////////////////////////////////////////////////////////////////////////////////////////
 
 int
 main(int argc, char **argv)
@@ -534,11 +497,11 @@ main(int argc, char **argv)
   std::vector<int> max_BFS_lvl; // Stores the maximum depth of BFS starting at the 'lowest' node
   determineGraphs(n_rows, graph_sizes, max_BFS_lvl);
 
-  // Debug output
-  if ( rank == 0 ){
-    for ( int i = 0; i < n_rows; i++ )
-      fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
-  }
+  // // Debug output
+  // if ( rank == 0 ){
+  //   for ( int i = 0; i < n_rows; i++ )
+  //     fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
+  // }
 
   // Determine processor distribution for each graph and compute the MST
   std::vector<Component> finished_mst;
@@ -566,7 +529,7 @@ main(int argc, char **argv)
 
   // Write mst's to file
   if ( rank == 0 ){
-    debugComponents(finished_mst);
+    // debugComponents(finished_mst);
     // Compute elapsed time
     // struct timespec end_time, elapsed_time;
     // clock_gettime(CLOCK_REALTIME, &end_time);
@@ -575,16 +538,16 @@ main(int argc, char **argv)
     elapsed_time = end_time - start_time;
     // double elapsed = (double)elapsed_time.tv_sec +
     //     (double)elapsed_time.tv_nsec / 1000000000.0;
-    fprintf(stderr, "elapsed time: %f s\n", elapsed_time);
+    // fprintf(stderr, "elapsed time: %f s\n", elapsed_time);
     outputMST(elapsed_time, finished_mst);
     // TODO
   }
 
-  // Debug output
-  if ( rank == 0 ){
-    for ( int i = 0; i < n_rows; i++ )
-      fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
-  }
+  // // Debug output
+  // if ( rank == 0 ){
+  //   for ( int i = 0; i < n_rows; i++ )
+  //     fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
+  // }
 
   MPI_Type_free(&MPI_Element);
   MPI_Finalize();

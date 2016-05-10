@@ -1,11 +1,11 @@
 #!/bin/bash
 #$ -pe openmpi 16
 #$ -l h_rt=0:15:00
-#$ -N MST
+#$ -N COND2
 #$ -cwd
 
 APP=./mst
-ARGS="example"
+ARGS="matrices/cond-mat-2005/cond-mat-2005.mtx"
 
 # Get OpenMPI settings
 . /etc/bashrc
