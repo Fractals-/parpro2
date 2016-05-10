@@ -71,6 +71,11 @@ void Component::addNode( int source, int node ){
   int j = row_ptr_begin[node],
       col = col_ind[j];
   Element el, nel;
+
+  if ( node == 32555 ){
+    fprintf(stderr, "whanow %d: %d\n", id, component_id[node][2]);
+  }
+
   // Create combined 'out-edge list'
   while ( i < elements.size() && j <= row_ptr_end[node]) {
     el = elements[i];
