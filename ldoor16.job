@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -pe openmpi 128
 #$ -l h_rt=0:15:00
-#$ -N LDOOR2
+#$ -N LDOOR16
 #$ -cwd
 
 APP=./mst
