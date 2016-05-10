@@ -209,6 +209,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
       if ( component_id[node][2] == -1 ) { // Add a single node to the component
         component_id[node][2] = cur_id;
         cur_comp.addNode(source, node);
+        cur_comp.nodes.push_back(node);
       }
       else { // Merge with a previously finished component
         for ( i = 0; i < finished_components.size(); i++ ) {
@@ -341,13 +342,13 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
     Component cur_comp = finished_components[i];
     found = cur_comp.findNextNode(node, source);
 
-    debugComponents(finished_components);
-    fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
-    // Debug output
-    if ( rank == 0 ){
-      for ( int i = 0; i < n_rows; i++ )
-        fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
-    }
+    // debugComponents(finished_components);
+    // fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
+    // // Debug output
+    // if ( rank == 0 ){
+    //   for ( int i = 0; i < n_rows; i++ )
+    //     fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
+    // }
 
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
@@ -368,15 +369,15 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
       }
       found = cur_comp.findNextNode(node, source);
 
-      finished_components[i] = cur_comp;
-      debugComponents(finished_components);
-      fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
-      // Debug output
-      if ( rank == 0 ){
-      for ( int i = 0; i < n_rows; i++ )
-        fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
-      }
-      return;
+      // finished_components[i] = cur_comp;
+      // debugComponents(finished_components);
+      // fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
+      // // Debug output
+      // if ( rank == 0 ){
+      // for ( int i = 0; i < n_rows; i++ )
+      //   fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
+      // }
+      // return;
     }
 
     finished_components[i] = cur_comp;
