@@ -341,9 +341,13 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
     Component cur_comp = finished_components[i];
     found = cur_comp.findNextNode(node, source);
 
+    debugComponents(finished_components);
+    fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
+    return;
+
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
-      fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
+      //fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
       for ( k = 0; k < finished_components.size(); k++ ) {
         if ( finished_components[k].id == component_id[node][2] ) {
           for ( j = 0; j < finished_components[k].nodes.size(); j++ ) {
