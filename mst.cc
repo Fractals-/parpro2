@@ -317,7 +317,7 @@ Component receiveComponent( int n_rows, int cur_id, int target_rank ){
   MPI_Recv(&new_comp.nodes[0], sizes[2], MPI_INT, target_rank, 7, MPI_COMM_WORLD, &status);
 
   // Update data structure
-  for ( i = 0; i < ids_size; i++ ) {
+  for ( i = 0; i < sizes[2]; i++ ) {
     // component_id[ids[i]][1] = rank;
     // component_id[ids[i]][2] = cur_id;
     component_id[new_comp.nodes[i]][1] = rank;
