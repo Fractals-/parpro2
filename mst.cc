@@ -64,6 +64,8 @@ MPI_Datatype MPI_Element;
 
 // *************************************************************************************
 
+/* Creates the 'MPI_Element' mpi datatype, such that Elements can be communicated
+ */
 void createElementType(){
   const int    nitems = 3;
   int          blocklengths[3] = {1, 1, 1};
@@ -86,20 +88,24 @@ void createElementType(){
   MPI_Type_commit(&MPI_Element);
 }
 
-
-
 // *************************************************************************************
 
-// Determine all disconnected graphs
+/* Determine all disconnected graphs, their sizes and depth (for BFS from 'lowest' node)
+ * Parameters:
+ *    n_rows       - The number of rows in the matrix
+ *    graph_sizes  - The sizes of all disconnected graphs
+ *    max_BFS_lvl  - The maximum depth of a BFS starting at the 'lowest' node
+ */
 void determineGraphs( int n_rows, std::vector<int>& graph_sizes, std::vector<int>& max_BFS_lvl ){
   int i, curnode = 0, col;
-  std::vector<int> queue;
+  std::vector<int> queue; // Queue used to perform the BFS
 
-  min_row = 0;
+  min_row = 0; // Stores 'lowest' node that is not in a graph yet
   num_graphs = -1;
 
   // For each disconnected graph
   while ( min_row < n_rows ) {
+    // Initialize new disconnected graph
     num_graphs++;
     queue.push_back(min_row);
     component_id[min_row][0] = num_graphs;
@@ -112,6 +118,7 @@ void determineGraphs( int n_rows, std::vector<int>& graph_sizes, std::vector<int
       for ( i = row_ptr_begin[curnode]; i <= row_ptr_end[curnode]; i++ ) {
         col = col_ind[i];
         if ( component_id[col][0] == -1 ) {
+          // Add the node 'col' to this disconnected graph
           queue.push_back(col);
           component_id[col][0] = num_graphs;
           component_id[col][1] = component_id[curnode][1] + 1;
@@ -122,7 +129,7 @@ void determineGraphs( int n_rows, std::vector<int>& graph_sizes, std::vector<int
     }
     max_BFS_lvl.push_back(component_id[curnode][1]);
 
-    //Determine start of next component
+    //Determine start of next disconnected graph
     for ( ; min_row < n_rows; min_row++ ) {
       if ( component_id[min_row][0] == -1 ) // A node was not yet added to a graph
         break;
@@ -134,15 +141,20 @@ void determineGraphs( int n_rows, std::vector<int>& graph_sizes, std::vector<int
 
 // *************************************************************************************
 
-// Set each BFS level to a processor
+/* Set each BFS level to a processor
+ * Parameters:
+ *    n_rows      - The number of rows in the matrix
+ *    graph_size  - The size of a disconnected graph
+ *    max_BFS_lvl - The maximum depth of a BFS starting at the 'lowest' node
+ */
 void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
   int i, proc_size, curlvl,
-      maxsize = graph_size / mpi_size;
-  int new_lvl[max_BFS_lvl + 1];
-  int lvl_size[max_BFS_lvl + 1];
+      maxsize = graph_size / mpi_size; // The maximum number of nodes per processor
+  int new_lvl[max_BFS_lvl + 1];  // Stores for each BFS lvl it's assigned processor
+  int lvl_size[max_BFS_lvl + 1]; // Stores the size of each BFS lvl
+
   for ( i = 0; i <= max_BFS_lvl; i++ )
     lvl_size[i] = 0;
-
   for ( i = 0; i < n_rows; i++ )
     lvl_size[component_id[i][1]]++;
 
@@ -167,7 +179,12 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
 
 // *************************************************************************************
 
-// Generate the components for a subgraph
+/* Generate the components for a 'subgraph', taking into account edges leaving
+ * this subgraph
+ * Parameters:
+ *    n_rows              - The number of rows in the matrix
+ *    finished_components - The set of components of this 'subgraph'
+ */
 void generateComponents( int n_rows, std::vector<Component>& finished_components ){
   int node, source, cur_id = 0;
   unsigned int i, j;
@@ -178,7 +195,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
       break;
   }
 
-  // As long as there is node that is not yet in a component
+  // As long as there is node that is not yet in a component continue
   while ( min_row < n_rows ) {
     Component cur_comp(cur_id, min_row);
     component_id[min_row][2] = cur_id;
@@ -186,16 +203,16 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 
     found = cur_comp.findNextNode(node, source);
 
+    // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
       if ( component_id[node][2] == -1 ) { // Add a single node to the component
-        // fprintf(stderr, "hallo %d, %d\n\n", node, source);
         component_id[node][2] = cur_id;
         cur_comp.addNode(source, node);
       }
       else { // Merge with a previously finished component
         for ( i = 0; i < finished_components.size(); i++ ) {
           if ( finished_components[i].id == component_id[node][2] ) {
-            // Set all elements of finished component to be in the current one
+            // Set all elements of the finished component to be in the current one
             // for ( j = 0; j < n_rows; j++ ) {
             //   if ( component_id[j][0] == graph && component_id[j][1] == rank &&
             //        component_id[j][2] == finished_components[i].id )
@@ -219,7 +236,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
     finished_components.push_back(cur_comp);
     cur_id++;
 
-    //Determine start of next component
+    //Determine start of the next component
     for ( ; min_row < n_rows; min_row++ ) {
       if ( component_id[min_row][0] == graph && component_id[min_row][1] == rank &&
            component_id[min_row][2] == -1 )
@@ -229,13 +246,21 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 }
 
 // *************************************************************************************
+////////////////////////////////////////////////////////////////////////////////////////
 
+/* Sends a single component to processor 'target_rank'
+ * Parameters:
+ *    n_rows      - The number of rows in the matrix
+ *    comp        - The component to send
+ *    target_rank - The target processor
+ */
 void sendComponent( int n_rows, Component& comp, int target_rank ){
-  unsigned int sizes[2], ids_size;
+  unsigned int sizes[3], ids_size;
   sizes[0] = comp.elements.size();
   sizes[1] = comp.edges_source.size();
+  sizes[2] = comp.nodes.size();
 
-  MPI_Send(&sizes, 2, MPI_UNSIGNED, target_rank, 1, MPI_COMM_WORLD);
+  MPI_Send(&sizes, 3, MPI_UNSIGNED, target_rank, 1, MPI_COMM_WORLD);
   MPI_Send(&comp.weight, 1, MPI_DOUBLE, target_rank, 2, MPI_COMM_WORLD);
 
   MPI_Send(&comp.elements[0], sizes[0], MPI_Element, target_rank, 3, MPI_COMM_WORLD);
@@ -250,20 +275,28 @@ void sendComponent( int n_rows, Component& comp, int target_rank ){
   //   }
   // }
   // ids_size = ids.size();
-  ids_size = comp.nodes.size();
-  MPI_Send(&ids_size, 1, MPI_UNSIGNED, target_rank, 6, MPI_COMM_WORLD);
+  //ids_size = comp.nodes.size();
+  //MPI_Send(&ids_size, 1, MPI_UNSIGNED, target_rank, 6, MPI_COMM_WORLD);
   // MPI_Send(&ids, ids_size, MPI_INT, target_rank, 7, MPI_COMM_WORLD);
-  MPI_Send(&comp.nodes[0], ids_size, MPI_INT, target_rank, 7, MPI_COMM_WORLD);
+  MPI_Send(&comp.nodes[0], sizes[2], MPI_INT, target_rank, 7, MPI_COMM_WORLD);
 }
 
 
 // *************************************************************************************
+////////////////////////////////////////////////////////////////////////////////////////
 
+/* Receives a single component from processor 'target_rank'
+ * Parameters:
+ *    n_rows      - The number of rows in the matrix
+ *    cur_id      - The id for the received component
+ *    target_rank - The source processor
+ * Returns - The received component
+ */
 Component receiveComponent( int n_rows, int cur_id, int target_rank ){
-  unsigned int sizes[2], ids_size, i;
+  unsigned int sizes[3], ids_size, i;
   int id;
   MPI_Status status;
-  MPI_Recv(&sizes, 2, MPI_UNSIGNED, target_rank, 1, MPI_COMM_WORLD, &status);
+  MPI_Recv(&sizes, 3, MPI_UNSIGNED, target_rank, 1, MPI_COMM_WORLD, &status);
 
   Component new_comp(cur_id);
   new_comp.elements.resize(sizes[0]);
@@ -277,12 +310,13 @@ Component receiveComponent( int n_rows, int cur_id, int target_rank ){
   MPI_Recv(&new_comp.edges_target[0], sizes[1], MPI_INT, target_rank, 5, MPI_COMM_WORLD, &status);
 
   //std::vector<int> ids;
-  MPI_Recv(&ids_size, 1, MPI_UNSIGNED, target_rank, 6, MPI_COMM_WORLD, &status);
+  //MPI_Recv(&ids_size, 1, MPI_UNSIGNED, target_rank, 6, MPI_COMM_WORLD, &status);
   //ids.resize(ids_size);
-  new_comp.nodes.resize(ids_size);
+  new_comp.nodes.resize(sizes[2]);
   // MPI_Recv(&ids, ids_size, MPI_INT, target_rank, 7, MPI_COMM_WORLD, &status);
-  MPI_Recv(&new_comp.nodes[0], ids_size, MPI_INT, target_rank, 7, MPI_COMM_WORLD, &status);
+  MPI_Recv(&new_comp.nodes[0], sizes[2], MPI_INT, target_rank, 7, MPI_COMM_WORLD, &status);
 
+  // Update data structure
   for ( i = 0; i < ids_size; i++ ) {
     // component_id[ids[i]][1] = rank;
     // component_id[ids[i]][2] = cur_id;
@@ -294,7 +328,7 @@ Component receiveComponent( int n_rows, int cur_id, int target_rank ){
 }
 
 // *************************************************************************************
-
+////////////////////////////////////////////////////////////////////////////////////////
 void debugComponents( std::vector<Component> finished_components ){
   // DEBUG THE COMMUNICATION HERE
   unsigned int i, j;
@@ -316,20 +350,25 @@ void debugComponents( std::vector<Component> finished_components ){
 }
 
 // *************************************************************************************
+////////////////////////////////////////////////////////////////////////////////////////
 
+/* Combine the components from this 'subgraph' as much as possible
+ * Parameters:
+ *    n_rows              - The number of rows in the matrix
+ *    finished_components - The components of this 'subgraph'
+ */
 void combineComponents( int n_rows, std::vector<Component>& finished_components ){
   int node, source;
   unsigned int i = 0, j, k;
   bool found;
 
-
-  // As long as there is node that is not yet in a component
+  // For each component, attempt to merge it with another
   while ( i < finished_components.size() ) {
     Component cur_comp = finished_components[i];
     found = cur_comp.findNextNode(node, source);
 
+    // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
-      // Merging of components is possible
       for ( k = 0; k < finished_components.size(); k++ ) {
         if ( finished_components[k].id == component_id[node][2] ) {
           // Set all elements of finished component to be in the current one
@@ -359,6 +398,7 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
 }
 
 // *************************************************************************************
+////////////////////////////////////////////////////////////////////////////////////////
 
 /* Combines the components found for all processors into a single component
  * Parameters:
@@ -366,7 +406,7 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
  *    finished_components - The components of this processor
  */
 void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
-  int step = 1;
+  int step = 1; // Stores the current step size
   int nstep, mod_rank,
       cur_id = finished_components[((int) finished_components.size() - 1)].id + 1;
   unsigned int num_comps, i;
@@ -379,6 +419,7 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
 
     // debugComponents(finished_components);
 
+    // Allow each processor to first finish creating its components
     MPI_Barrier(MPI_COMM_WORLD);
     
     if ( mod_rank == 0 ){
@@ -388,6 +429,7 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
       for ( i = 0; i < num_comps; i++ ){
         Component new_comp = receiveComponent( n_rows, cur_id, rank + step );
         finished_components.push_back(new_comp);
+        cur_id++;
       }
 
       // Integrate/combine the components
@@ -403,7 +445,6 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
 
       for ( i = 0; i < num_comps; i++ )
         sendComponent( n_rows, finished_components[i], rank - step );
-
     }
 
     step = nstep;
@@ -462,8 +503,8 @@ main(int argc, char **argv)
       component_id[i][j] = -1;
 
   // Determine all disconnected graphs
-  std::vector<int> graph_sizes;
-  std::vector<int> max_BFS_lvl;
+  std::vector<int> graph_sizes; // Stores the sizes of all disconnected graphs
+  std::vector<int> max_BFS_lvl; // Stores the maximum depth of BFS starting at the 'lowest' node
   determineGraphs(n_rows, graph_sizes, max_BFS_lvl);
 
   // Initialize MPI related matters
@@ -478,7 +519,7 @@ main(int argc, char **argv)
       fprintf(stderr, "%d, %d, %d\n", component_id[i][0], component_id[i][1], component_id[i][2]);
   }
 
-  // Determine processor distribution for each graph and compute mst
+  // Determine processor distribution for each graph and compute the MST
   std::vector<Component> finished_mst;
   for ( graph = 0; graph < num_graphs; graph++ ){
     if ( graph_sizes[graph] > 3 ) {// Otherwise parallelization is unlikely to be helpful
@@ -487,7 +528,7 @@ main(int argc, char **argv)
       if ( rank == 0 )
         finished_mst.push_back(comp);
     }
-    else{
+    else{ // Perform sequential execution
       for ( int i = 0; i < max_n_rows; i++ ){
         if ( component_id[i][0] == graph )
           component_id[i][1] = 0;
@@ -507,6 +548,9 @@ main(int argc, char **argv)
     debugComponents(finished_mst);
     // TODO
   }
+
+  //Execution time
+  // TODO
 
   // Debug output
   if ( rank == 0 ){
