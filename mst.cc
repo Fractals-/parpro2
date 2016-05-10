@@ -128,9 +128,6 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
     if ( graph == component_id[i][0] )
       lvl_size[component_id[i][1]]++;
   }
-  
-  for ( i = 0; i < max_BFS_lvl; i++ )
-    fprintf(stderr, "LvL %d: %d: %d: %d\n", graph, rank, i, lvl_size[i]);
 
   // Determine which BFS levels are assigned to which processor
   curlvl = 0;
@@ -455,7 +452,7 @@ main(int argc, char **argv)
   // struct timespec start_time;
   // clock_gettime(CLOCK_REALTIME, &start_time);
   double start_time = 0.0, end_time, elapsed_time;
-  if ( rank == 0 )
+  //if ( rank == 0 )
     start_time = MPI_Wtime();
 
   // Initialize component id's for each row to -1
@@ -480,7 +477,7 @@ main(int argc, char **argv)
     fprintf(stderr, "Graph %d: %d: %d\n", graph, rank, graph_sizes[graph]);
     if ( graph_sizes[graph] > 3 ) {// Otherwise parallelization is unlikely to be helpful
       determineComponents(n_rows, graph_sizes[graph], max_BFS_lvl[graph]);
-      fprintf(stderr, "Graph %d: %d\n", graph, rank);
+      fprintf(stderr, "time %d: %d: %.2f\n", graph, rank, MPI_Wtime() - start_time);
       Component comp = generateMst(n_rows);
       if ( rank == 0 ){
         fprintf(stderr, "Graph %d: %d: %d\n", graph, rank, (int) comp.nodes.size());
