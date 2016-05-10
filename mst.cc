@@ -351,6 +351,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
 
     // Allow each processor to first finish creating its components
     MPI_Barrier(MPI_COMM_WORLD);
+    fprintf(stderr, "finished this part %.2f", MPI_Wtime());
     
     if ( mod_rank == 0 ){
       // Receive components from 'rank + step' and integrate them
