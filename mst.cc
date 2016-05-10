@@ -124,10 +124,12 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
 
   for ( i = 0; i <= max_BFS_lvl; i++ )
     lvl_size[i] = 0;
-  for ( i = 0; i < n_rows; i++ )
-    lvl_size[component_id[i][1]]++;
+  for ( i = 0; i < n_rows; i++ ){
+    if ( graph == component_id[i][0] )
+      lvl_size[component_id[i][1]]++;
+  }
   
-  for ( i = 0; i < n_rows; i++ )
+  for ( i = 0; i < max_BFS_lvl; i++ )
     fprintf(stderr, "LvL %d: %d: %d: %d\n", graph, rank, i, lvl_size[i]);
 
   // Determine which BFS levels are assigned to which processor
