@@ -112,7 +112,7 @@ void Component::addNode( int source, int node ){
 
   // Add any remaining elements at the end
   while ( j <= row_ptr_end[node] ) {
-    if ( component_id[col][0] == graph && col != node && // Correct graph
+    if ( component_id[col][0] == graph && // Correct graph
          !( component_id[col][1] == rank && component_id[col][2] == id ) ) { // No self edge
       nel.dist = values[j];
       nel.col = col;
