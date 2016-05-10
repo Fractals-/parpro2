@@ -160,7 +160,7 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
 void generateComponents( int n_rows, std::vector<Component>& finished_components ){
   int node, source, tnode, cur_id = 0;
   unsigned int i, j;
-  bool found;
+  bool found, correct;
 
   for ( min_row = 0; min_row < n_rows; min_row++ ) {
     if ( component_id[min_row][0] == graph && component_id[min_row][1] == rank )
@@ -179,14 +179,13 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
       if ( component_id[node][2] == -1 ) { // Add a single node to the component
-        fprintf(stderr, "node1 %d: %d: %.2f\n", rank, node, MPI_Wtime() - start_time);
         component_id[node][2] = cur_id;
         cur_comp.addNode(source, node);
         cur_comp.nodes.push_back(node);
-        fprintf(stderr, "node2 %d: %.2f\n", rank, MPI_Wtime() - start_time);
       }
       else { // Merge with a previously finished component
-        fprintf(stderr, "comp1 %d: %d: %d: %.2f\n", rank, node, component_id[node][2], MPI_Wtime() - start_time);
+        correct = false;
+
         for ( i = 0; i < finished_components.size(); i++ ) {
           if ( finished_components[i].id == component_id[node][2] ) {
             for ( j = 0; j < finished_components[i].nodes.size(); j++ ) {
@@ -197,10 +196,13 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
             // Merge the components
             cur_comp.addComponent(finished_components[i], node, source);
             finished_components.erase(finished_components.begin() + i);
+            correct = true;
             break;
           }
         }
-        fprintf(stderr, "comp2 %d: %.2f\n", rank, MPI_Wtime() - start_time);
+        if ( !correct ){
+          fprintf(stderr, "comp %d: %d: %d: %.2f\n", rank, node, component_id[node][2], MPI_Wtime() - start_time);
+        }
       }
 
       found = cur_comp.findNextNode(node, source);
