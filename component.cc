@@ -197,6 +197,7 @@ void Component::addComponent( Component &comp, int node, int source ){
          !( component_id[el.col][1] == rank && component_id[el.col][2] == id ) ) { // No self edge
       weight += el.dist;
       elements.erase(elements.begin() + i);
+      i--;
     }
     i++;
   }
