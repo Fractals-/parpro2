@@ -52,7 +52,7 @@ bool Component::findNextNode( int &node, int &source ){
     }
   }
 
-  fprintf(stderr, "%d: %d: %d\n", (int) elements.size(), node, id);
+  //fprintf(stderr, "%d: %d: %d\n", (int) elements.size(), node, id);
   // Return false if the component can not be further expanded
   if ( node >= 0 )
     return true;
@@ -79,6 +79,8 @@ void Component::addNode( int source, int node ){
       weight += el.dist;
       elements.erase(elements.begin() + i);
     }
+    else if ( col == node )
+      j++;
     else if ( col < el.col ) { // Insert edge to a 'new' vertex
       if ( component_id[col][0] == graph &&  // Correct graph
            !( component_id[col][1] == rank && component_id[col][2] == id ) ) { // No self edge
