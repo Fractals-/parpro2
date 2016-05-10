@@ -337,7 +337,7 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
 
   // For each component, attempt to merge it with another
   while ( i < finished_components.size() ) {
-    fprintf(stderr, "\nComponent %d: %d\n", i, finished_components.size());
+    fprintf(stderr, "\nComponent %d: %d\n", i, (int)finished_components.size());
     Component cur_comp = finished_components[i];
     found = cur_comp.findNextNode(node, source);
 
