@@ -243,11 +243,10 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 
 /* Sends a single component to processor 'target_rank'
  * Parameters:
- *    n_rows      - The number of rows in the matrix
  *    comp        - The component to send
  *    target_rank - The target processor
  */
-void sendComponent( int n_rows, Component& comp, int target_rank ){
+void sendComponent( Component& comp, int target_rank ){
   unsigned int sizes[3];
   sizes[0] = comp.elements.size();
   sizes[1] = comp.edges_source.size();
@@ -268,12 +267,11 @@ void sendComponent( int n_rows, Component& comp, int target_rank ){
 
 /* Receives a single component from processor 'target_rank'
  * Parameters:
- *    n_rows      - The number of rows in the matrix
  *    cur_id      - The id for the received component
  *    target_rank - The source processor
  * Returns - The received component
  */
-Component receiveComponent( int n_rows, int cur_id, int target_rank ){
+Component receiveComponent( int cur_id, int target_rank ){
   unsigned int sizes[3], i;
   MPI_Status status;
   MPI_Recv(&sizes, 3, MPI_UNSIGNED, target_rank, 1, MPI_COMM_WORLD, &status);
@@ -392,7 +390,7 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
       MPI_Recv(&num_comps, 1, MPI_UNSIGNED, rank + step, 0, MPI_COMM_WORLD, &status);
 
       for ( i = 0; i < num_comps; i++ ){
-        Component new_comp = receiveComponent( n_rows, cur_id, rank + step );
+        Component new_comp = receiveComponent( cur_id, rank + step );
         finished_components.push_back(new_comp);
         cur_id++;
       }
@@ -406,7 +404,7 @@ void mergeLevels( int n_rows, std::vector<Component>& finished_components ){
       MPI_Send(&num_comps, 1, MPI_UNSIGNED, rank - step, 0, MPI_COMM_WORLD);
 
       for ( i = 0; i < num_comps; i++ )
-        sendComponent( n_rows, finished_components[i], rank - step );
+        sendComponent( finished_components[i], rank - step );
     }
 
     step = nstep;
