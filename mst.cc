@@ -510,7 +510,7 @@ main(int argc, char **argv)
   if ( rank == 0 ){
     debugComponents(finished_mst);
     // Compute elapsed time
-    struct timespec end_time;
+    struct timespec end_time, elapsed_time;
     clock_gettime(CLOCK_REALTIME, &end_time);
     timespec_subtract(&elapsed_time, &end_time, &start_time);
     double elapsed = (double)elapsed_time.tv_sec +
