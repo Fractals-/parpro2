@@ -2,7 +2,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <algorithm>
-//#include <fstream>
+#include <fstream>
 #include <cmath>
 #include "mpi.h"
 
@@ -343,6 +343,7 @@ void combineComponents( int n_rows, std::vector<Component>& finished_components 
 
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
+      fprintf(stderr, "%d, %d, %d, %d\n", found, i, (int)finished_components.size(), node);
       for ( k = 0; k < finished_components.size(); k++ ) {
         if ( finished_components[k].id == component_id[node][2] ) {
           for ( j = 0; j < finished_components[k].nodes.size(); j++ ) {
@@ -440,6 +441,17 @@ Component generateMst( int n_rows ){
 // *************************************************************************************
 
 void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
+  unsigned int i, j;
+  fprintf(stderr, "\n---------------\nElapsed time %.4f:\n", elapsed_time);
+  for ( i = 0; i < finished_mst.size(); i++ ) {
+    Component comp = finished_mst[i];
+    fprintf(stderr, "\nMST %d:\n", i);
+    fprintf(stderr, "weight = %.4f\n", comp.weight);
+    for ( j = 0; j < comp.edges_source.size(); j++ ){
+      fprintf(stderr, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
+    }
+  }
+
   // ofstream out;
   // unsigned int i, j;
 
