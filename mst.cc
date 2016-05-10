@@ -183,7 +183,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
         component_id[node][2] = cur_id;
         cur_comp.addNode(source, node);
         cur_comp.nodes.push_back(node);
-        fprintf(stderr, "node2 %d: %d: %.2f\n", rank, MPI_Wtime() - start_time);
+        fprintf(stderr, "node2 %d: %.2f\n", rank, MPI_Wtime() - start_time);
       }
       else { // Merge with a previously finished component
         fprintf(stderr, "comp1 %d: %d: %.2f\n", rank, node, MPI_Wtime() - start_time);
@@ -200,7 +200,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
             break;
           }
         }
-        fprintf(stderr, "comp2 %d: %d: %.2f\n", rank, MPI_Wtime() - start_time);
+        fprintf(stderr, "comp2 %d: %.2f\n", rank, MPI_Wtime() - start_time);
       }
 
       found = cur_comp.findNextNode(node, source);
