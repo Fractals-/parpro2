@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -pe openmpi 16
+#$ -pe openmpi 32
 #$ -l h_rt=0:03:00
 #$ -N COND2
 #$ -cwd
