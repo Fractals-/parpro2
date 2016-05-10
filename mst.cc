@@ -158,7 +158,7 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
  *    finished_components - The set of components of this 'subgraph'
  */
 void generateComponents( int n_rows, std::vector<Component>& finished_components ){
-  int node, source, cur_id = 0;
+  int node, source, tnode, cur_id = 0;
   unsigned int i, j;
   bool found;
 
@@ -179,23 +179,28 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
       if ( component_id[node][2] == -1 ) { // Add a single node to the component
+        fprintf(stderr, "node1 %d: %d: %.2f\n", rank, node, MPI_Wtime() - start_time);
         component_id[node][2] = cur_id;
         cur_comp.addNode(source, node);
         cur_comp.nodes.push_back(node);
+        fprintf(stderr, "node2 %d: %d: %.2f\n", rank, MPI_Wtime() - start_time);
       }
       else { // Merge with a previously finished component
+        fprintf(stderr, "comp1 %d: %d: %.2f\n", rank, node, MPI_Wtime() - start_time);
         for ( i = 0; i < finished_components.size(); i++ ) {
           if ( finished_components[i].id == component_id[node][2] ) {
-            for ( j = 0; j < finished_components[i].nodes.size(); j++) {
-              component_id[finished_components[i].nodes[j]][2] = cur_id;
-              cur_comp.nodes.push_back(finished_components[i].nodes[j]);
+            for ( j = 0; j < finished_components[i].nodes.size(); j++ ) {
+              tnode = finished_components[i].nodes[j];
+              component_id[tnode][2] = cur_id;
+              cur_comp.nodes.push_back(tnode);
             }
-            // Merge the componentes
+            // Merge the components
             cur_comp.addComponent(finished_components[i], node, source);
             finished_components.erase(finished_components.begin() + i);
             break;
           }
         }
+        fprintf(stderr, "comp2 %d: %d: %.2f\n", rank, MPI_Wtime() - start_time);
       }
 
       found = cur_comp.findNextNode(node, source);
