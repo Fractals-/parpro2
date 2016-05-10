@@ -186,8 +186,6 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
       else { // Merge with a previously finished component
         correct = false;
 
-        fprintf(stderr, "comp %d: %d: %d: %d: %.2f\n", rank, node, component_id[node][2], component_id[node][1], MPI_Wtime() - start_time);
-
         for ( i = 0; i < finished_components.size(); i++ ) {
           if ( finished_components[i].id == component_id[node][2] ) {
             for ( j = 0; j < finished_components[i].nodes.size(); j++ ) {
@@ -203,7 +201,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
           }
         }
         if ( !correct ){
-          fprintf(stderr, "comp %d: %d: %d: %d: %.2f\n", rank, node, component_id[node][2], component_id[node][1], MPI_Wtime() - start_time);
+          fprintf(stderr, "comp %d: %d: %d: %d: %d: %.2f\n", rank, node, component_id[node][2], component_id[node][1], component_id[node][0], MPI_Wtime() - start_time);
           abort();
         }
       }

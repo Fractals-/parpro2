@@ -42,7 +42,7 @@ bool Component::findNextNode( int &node, int &source ){
   double min_value = DBL_MAX;
   node = -1;
   Element el;
-  fprintf(stderr, "%d\n", (int) elements.size());
+
   for ( i = 0; i < elements.size(); i++ ) {
     el = elements[i];
     if ( el.dist < min_value ){
@@ -52,6 +52,7 @@ bool Component::findNextNode( int &node, int &source ){
     }
   }
 
+  fprintf(stderr, "%d: %d: %d\n", (int) elements.size(), node, id);
   // Return false if the component can not be further expanded
   if ( node >= 0 )
     return true;
