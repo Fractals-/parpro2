@@ -457,8 +457,17 @@ main(int argc, char **argv)
       return -1;
     }
 
-  struct timespec start_time;
-  clock_gettime(CLOCK_REALTIME, &start_time);
+  // Initialize MPI related matters
+  MPI_Init(&argc, &argv);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+  createElementType();
+
+  // struct timespec start_time;
+  // clock_gettime(CLOCK_REALTIME, &start_time);
+  double start_time, end_time, elapsed_time;
+  if ( rank == 0 )
+    start_time = MPI_Wtime();
 
   // Initialize component id's for each row to -1
   for ( int i = 0; i < n_rows; i++ )
@@ -469,12 +478,6 @@ main(int argc, char **argv)
   std::vector<int> graph_sizes; // Stores the sizes of all disconnected graphs
   std::vector<int> max_BFS_lvl; // Stores the maximum depth of BFS starting at the 'lowest' node
   determineGraphs(n_rows, graph_sizes, max_BFS_lvl);
-
-  // Initialize MPI related matters
-  MPI_Init(&argc, &argv);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
-  createElementType();
 
   // Debug output
   if ( rank == 0 ){
@@ -510,12 +513,14 @@ main(int argc, char **argv)
   if ( rank == 0 ){
     debugComponents(finished_mst);
     // Compute elapsed time
-    struct timespec end_time, elapsed_time;
-    clock_gettime(CLOCK_REALTIME, &end_time);
-    timespec_subtract(&elapsed_time, &end_time, &start_time);
-    double elapsed = (double)elapsed_time.tv_sec +
-        (double)elapsed_time.tv_nsec / 1000000000.0;
-    fprintf(stderr, "elapsed time: %f s\n", elapsed);
+    // struct timespec end_time, elapsed_time;
+    // clock_gettime(CLOCK_REALTIME, &end_time);
+    // timespec_subtract(&elapsed_time, &end_time, &start_time);
+    end_time = MPI_Wtime();
+    elapsed_time = end_time - start_time;
+    // double elapsed = (double)elapsed_time.tv_sec +
+    //     (double)elapsed_time.tv_nsec / 1000000000.0;
+    fprintf(stderr, "elapsed time: %f s\n", elapsed_time);
     // TODO
   }
 
