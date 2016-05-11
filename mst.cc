@@ -145,7 +145,7 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
   }
 
   for ( i = 0; i <= max_BFS_lvl; i++ )
-    fprintf(stderr, "%d: %d: level %d: %d\n", rank, graph, i, new_lvl[i]);
+    fprintf(stderr, "%d: %d: level %d: %d: %d\n", rank, graph, i, new_lvl[i], lvl_size[i]);
 
   // Set the processors
   for ( i = 0; i < n_rows; i++ )
