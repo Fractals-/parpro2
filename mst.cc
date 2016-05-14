@@ -376,7 +376,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
 
     // Allow each processor to first finish creating its components
     // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
     // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
 
     fprintf(stderr, "reached4 %d: %d\n", rank, graph);
