@@ -363,7 +363,9 @@ void mergeLevels( std::vector<Component>& finished_components ){
   int step = 1; // Stores the current step size
   fprintf(stderr, "reached1 %d: %d\n", rank, graph);
   int nstep, mod_rank,
-      cur_id = finished_components[((int) finished_components.size() - 1)].id + 1;
+      cur_id = -1;
+  if ( !finished_components.empty() )
+    finished_components[((int) finished_components.size() - 1)].id + 1;
   unsigned int num_comps, i;
   MPI_Status status;
   fprintf(stderr, "reached2 %d: %d\n", rank, graph);
@@ -376,7 +378,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
 
     // Allow each processor to first finish creating its components
     // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
-    //MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
     // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
 
     fprintf(stderr, "reached4 %d: %d\n", rank, graph);
