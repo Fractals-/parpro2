@@ -375,7 +375,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
 
     // Allow each processor to first finish creating its components
     // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
-    // MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
     // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
 
     if ( mod_rank == 0 ){
@@ -443,6 +443,7 @@ void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
     for ( j = 0; j < comp.edges_source.size(); j++ ){
       fprintf(stdout, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
     }
+    return;
   }
   fprintf(stdout, "\n---------------\nElapsed time %.4f\n", elapsed_time);
 }
