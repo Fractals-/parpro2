@@ -365,7 +365,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
   int nstep, mod_rank,
       cur_id = -1;
   if ( !finished_components.empty() )
-    finished_components[((int) finished_components.size() - 1)].id + 1;
+    cur_id = finished_components[((int) finished_components.size() - 1)].id + 1;
   unsigned int num_comps, i;
   MPI_Status status;
   fprintf(stderr, "reached2 %d: %d\n", rank, graph);
