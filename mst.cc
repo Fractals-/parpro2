@@ -361,28 +361,23 @@ void combineComponents( std::vector<Component>& finished_components ){
  */
 void mergeLevels( std::vector<Component>& finished_components ){
   int step = 1; // Stores the current step size
-  fprintf(stderr, "reached1 %d: %d\n", rank, graph);
   int nstep, mod_rank,
       cur_id = -1;
   if ( !finished_components.empty() )
     cur_id = finished_components[((int) finished_components.size() - 1)].id + 1;
   unsigned int num_comps, i;
   MPI_Status status;
-  fprintf(stderr, "reached2 %d: %d\n", rank, graph);
 
   // Perform stepwise reduction
   while ( step != mpi_size ){
     nstep = 2 * step;
     mod_rank = rank % nstep;
-    fprintf(stderr, "reached3 %d: %d\n", rank, graph);
 
     // Allow each processor to first finish creating its components
     // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
     MPI_Barrier(MPI_COMM_WORLD);
     // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
 
-    fprintf(stderr, "reached4 %d: %d\n", rank, graph);
-    
     if ( mod_rank == 0 ){
       // Receive components from 'rank + step' and integrate them
       MPI_Recv(&num_comps, 1, MPI_UNSIGNED, rank + step, 0, MPI_COMM_WORLD, &status);
@@ -399,7 +394,6 @@ void mergeLevels( std::vector<Component>& finished_components ){
     else if ( mod_rank - step == 0 ){
       // Send components to 'rank - step'
       num_comps = finished_components.size();
-      fprintf(stderr, "num comp %d: %d: %d\n", rank, graph, (int) num_comps);
       MPI_Send(&num_comps, 1, MPI_UNSIGNED, rank - step, 0, MPI_COMM_WORLD);
 
       for ( i = 0; i < num_comps; i++ )
