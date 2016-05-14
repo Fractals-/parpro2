@@ -392,6 +392,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
     else if ( mod_rank - step == 0 ){
       // Send components to 'rank - step'
       num_comps = finished_components.size();
+      fprintf(stderr, "num comp %d: %d: %d\n", rank, graph, (int) num_comps);
       MPI_Send(&num_comps, 1, MPI_UNSIGNED, rank - step, 0, MPI_COMM_WORLD);
 
       for ( i = 0; i < num_comps; i++ )
