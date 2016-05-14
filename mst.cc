@@ -144,8 +144,8 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
     curlvl++;
   }
 
-  for ( i = 0; i <= max_BFS_lvl; i++ )
-    fprintf(stderr, "%d: %d: level %d: %d: %d\n", rank, graph, i, new_lvl[i], lvl_size[i]);
+  // for ( i = 0; i <= max_BFS_lvl; i++ )
+  //   fprintf(stderr, "%d: %d: level %d: %d: %d\n", rank, graph, i, new_lvl[i], lvl_size[i]);
 
   // Set the processors
   for ( i = 0; i < n_rows; i++ )
@@ -375,7 +375,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
 
     // Allow each processor to first finish creating its components
     // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
-    MPI_Barrier(MPI_COMM_WORLD);
+    // MPI_Barrier(MPI_COMM_WORLD);
     // fprintf(stderr, "finished this part %.2f", MPI_Wtime());
 
     if ( mod_rank == 0 ){
