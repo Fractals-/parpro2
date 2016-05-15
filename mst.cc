@@ -293,25 +293,25 @@ Component receiveComponent( int cur_id, int target_rank ){
 
 // *************************************************************************************
 ////////////////////////////////////////////////////////////////////////////////////////
-// void debugComponents( std::vector<Component> finished_components ){
-//   // DEBUG THE COMMUNICATION HERE
-//   unsigned int i, j;
-//   fprintf(stderr, "\n---------------\nProcessor %d:\n", rank);
-//   for ( i = 0; i < finished_components.size(); i++ ) {
-//     Component comp = finished_components[i];
-//     fprintf(stderr, "\nComponent %d:\n", comp.id);
-//     fprintf(stderr, "%d, %d: id = %d\n", rank, i, comp.id);
-//     fprintf(stderr, "%d, %d: weight = %.1f\n", rank, i, comp.weight);
-//     for ( j = 0; j < comp.elements.size(); j++ ){
-//       Element el = comp.elements[j];
-//       fprintf(stderr, "%d, %d: edge: %.1f, %d, %d\n", rank, i, el.dist, el.col, el.from);
-//     }
-//     fprintf(stderr, "\n");
-//     for ( j = 0; j < comp.edges_source.size(); j++ ){
-//       fprintf(stderr, "%d, %d: path: %d, %d\n", rank, i, comp.edges_source[j], comp.edges_target[j]);
-//     }
-//   }
-// }
+void debugComponents( std::vector<Component> finished_components ){
+  // DEBUG THE COMMUNICATION HERE
+  unsigned int i, j;
+  fprintf(stderr, "\n---------------\nProcessor %d:\n", rank);
+  for ( i = 0; i < finished_components.size(); i++ ) {
+    Component comp = finished_components[i];
+    fprintf(stderr, "\nComponent %d:\n", comp.id);
+    fprintf(stderr, "%d, %d: id = %d\n", rank, i, comp.id);
+    fprintf(stderr, "%d, %d: weight = %.1f\n", rank, i, comp.weight);
+    for ( j = 0; j < comp.elements.size(); j++ ){
+      Element el = comp.elements[j];
+      fprintf(stderr, "%d, %d: edge: %.1f, %d, %d\n", rank, i, el.dist, el.col, el.from);
+    }
+    fprintf(stderr, "\n");
+    for ( j = 0; j < comp.edges_source.size(); j++ ){
+      fprintf(stderr, "%d, %d: path: %d, %d\n", rank, i, comp.edges_source[j], comp.edges_target[j]);
+    }
+  }
+}
 
 // *************************************************************************************
 
@@ -352,7 +352,7 @@ void combineComponents( std::vector<Component>& finished_components ){
     i++;
   }
 
-  fprintf(stderr, "%d: %d: finished this part %.2f", rank, graph, MPI_Wtime());
+  fprintf(stderr, "%d: %d: finished this part %.2f\n", rank, graph, MPI_Wtime());
 }
 
 // *************************************************************************************
@@ -390,13 +390,23 @@ void mergeLevels( std::vector<Component>& finished_components ){
         cur_id++;
       }
 
+      if ( rank == 0 )
+        debugComponents(finished_components);
+
       // Integrate/combine the components
       combineComponents(finished_components);
+
+      if ( rank == 0 ){
+        debugComponents(finished_components);
+      }
     }
     else if ( mod_rank - step == 0 ){
       // Send components to 'rank - step'
       num_comps = finished_components.size();
       MPI_Send(&num_comps, 1, MPI_UNSIGNED, rank - step, 0, MPI_COMM_WORLD);
+
+      if ( rank == 1 )
+        debugComponents(finished_components);
 
       for ( i = 0; i < num_comps; i++ )
         sendComponent( finished_components[i], rank - step );
