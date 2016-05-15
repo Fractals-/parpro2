@@ -351,6 +351,8 @@ void combineComponents( std::vector<Component>& finished_components ){
     finished_components[i] = cur_comp;
     i++;
   }
+
+  fprintf(stderr, "%d: %d: finished this part %.2f", rank, graph, MPI_Wtime());
 }
 
 // *************************************************************************************
