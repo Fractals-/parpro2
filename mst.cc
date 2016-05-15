@@ -442,6 +442,7 @@ void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
     Component comp = finished_mst[i];
     fprintf(stdout, "\nMST %d:\n", i);
     fprintf(stdout, "weight = %.4f\n", comp.weight);
+    fprintf(stdout, "number_nodes = %d\n", (int) comp.nodes.size());
     for ( j = 0; j < comp.edges_source.size(); j++ ){
       fprintf(stdout, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
     }
