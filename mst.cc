@@ -421,6 +421,8 @@ Component generateMst( int n_rows ){
   mergeLevels(finished_components);
 
   fprintf(stderr, "merged %d: %d: %.2f\n", rank, graph, MPI_Wtime() - start_time);
+  if ( finished_components.size() > 1 )
+    fprintf(stderr, "fin size %d: %d: %d\n", rank, graph, (int) finished_components.size() );
 
   if ( finished_components.size() > 0 ){
     Component cur_comp = finished_components[0];
