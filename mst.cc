@@ -390,23 +390,23 @@ void mergeLevels( std::vector<Component>& finished_components ){
         cur_id++;
       }
 
-      if ( rank == 0 )
-        debugComponents(finished_components);
+      // if ( rank == 0 )
+      //   debugComponents(finished_components);
 
       // Integrate/combine the components
       combineComponents(finished_components);
 
-      if ( rank == 0 ){
-        debugComponents(finished_components);
-      }
+      // if ( rank == 0 ){
+      //   debugComponents(finished_components);
+      // }
     }
     else if ( mod_rank - step == 0 ){
       // Send components to 'rank - step'
       num_comps = finished_components.size();
       MPI_Send(&num_comps, 1, MPI_UNSIGNED, rank - step, 0, MPI_COMM_WORLD);
 
-      if ( rank == 1 )
-        debugComponents(finished_components);
+      // if ( rank == 1 )
+      //   debugComponents(finished_components);
 
       for ( i = 0; i < num_comps; i++ )
         sendComponent( finished_components[i], rank - step );
@@ -455,9 +455,9 @@ void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
     fprintf(stdout, "\nMST %d:\n", i);
     fprintf(stdout, "weight = %.4f\n", comp.weight);
     fprintf(stdout, "number_nodes = %d\n", (int) comp.nodes.size());
-    for ( j = 0; j < comp.edges_source.size(); j++ ){
-      fprintf(stdout, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
-    }
+    // for ( j = 0; j < comp.edges_source.size(); j++ ){
+    //   fprintf(stdout, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
+    // }
     return;
   }
   fprintf(stdout, "\n---------------\nElapsed time %.4f\n", elapsed_time);
