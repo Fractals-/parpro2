@@ -10,6 +10,6 @@
 #include <float.h>
 
 const int max_n_elements = 774472352;//50000000;
-const int max_n_rows = 1000000;//27993600;//
+const int max_n_rows = 27993600;//1000000;
 
 #endif /* __GENERAL_H__ */
