@@ -1,6 +1,6 @@
 CC = mpicc
 CXX = mpic++
-CFLAGS = -Wall -Wextra -O3 -g -mcmodel=medium
+CFLAGS = -Wall -Wextra -O3 -g -mmodel=medium
 
 all:	mst
 
