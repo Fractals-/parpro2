@@ -244,7 +244,7 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
 void generateComponents( int n_rows, std::vector<Component>& finished_components ){
   int node, source, tnode, cur_id = 0, i, index;
   unsigned int j;
-  bool found, correct;
+  bool found;
 
   for ( min_row = 0; min_row < n_rows; min_row++ ) {
     if ( component_id[min_row][0] == graph && component_id[min_row][1] == rank )
@@ -390,8 +390,8 @@ void debugComponents( std::vector<Component> finished_components ){
  *    finished_components - The components of this 'subgraph'
  */
 void combineComponents( std::vector<Component>& finished_components ){
-  int node, source, max_id = 0;
-  unsigned int i = 0, j, k;
+  int node, source, tnode, max_id = 0, k;
+  unsigned int i = 0, j;
   bool found;
 
   if ( !finished_components.empty() )
@@ -416,8 +416,8 @@ void combineComponents( std::vector<Component>& finished_components ){
       cur_comp.addComponent(comp, node, source);
       finished_components.erase(finished_components.begin() + index);
 
-      for ( i = component_id[node][2] + 1; i <= max_id; i++ )
-        component_position[i]--;
+      for ( k = component_id[node][2] + 1; k <= max_id; k++ )
+        component_position[k]--;
 
       if ( index < i ) // Adjust i because of removal
         i--;
@@ -481,7 +481,7 @@ void combineComponents( std::vector<Component>& finished_components ){
 void mergeLevels( std::vector<Component>& finished_components ){
   int step = 1; // Stores the current step size
   int nstep, mod_rank,
-      cur_id = -1, j, max_id = 0;
+      cur_id = -1;
   if ( !finished_components.empty() )
     cur_id = finished_components[((int) finished_components.size() - 1)].id + 1;
   unsigned int num_comps, i;
