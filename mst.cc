@@ -352,7 +352,7 @@ void combineComponents( std::vector<Component>& finished_components ){
     i++;
   }
 
-  fprintf(stderr, "%d: %d: finished this part %.2f\n", rank, graph, MPI_Wtime());
+  // fprintf(stderr, "%d: %d: finished this part %.2f\n", rank, graph, MPI_Wtime());
 }
 
 // *************************************************************************************
@@ -433,8 +433,8 @@ Component generateMst( int n_rows ){
   mergeLevels(finished_components);
 
   fprintf(stderr, "merged %d: %d: %.2f\n", rank, graph, MPI_Wtime() - start_time);
-  if ( finished_components.size() > 1 )
-    fprintf(stderr, "fin size %d: %d: %d\n", rank, graph, (int) finished_components.size() );
+  // if ( finished_components.size() > 1 )
+  //   fprintf(stderr, "fin size %d: %d: %d\n", rank, graph, (int) finished_components.size() );
 
   if ( finished_components.size() > 0 ){
     Component cur_comp = finished_components[0];
@@ -454,11 +454,11 @@ void outputMST( double elapsed_time, std::vector<Component>& finished_mst ){
     Component comp = finished_mst[i];
     fprintf(stdout, "\nMST %d:\n", i);
     fprintf(stdout, "weight = %.4f\n", comp.weight);
-    fprintf(stdout, "number_nodes = %d\n", (int) comp.nodes.size());
-    // for ( j = 0; j < comp.edges_source.size(); j++ ){
-    //   fprintf(stdout, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
-    // }
-    return;
+    // fprintf(stdout, "number_nodes = %d\n", (int) comp.nodes.size());
+    for ( j = 0; j < comp.edges_source.size(); j++ ){
+      fprintf(stdout, "%d, %d\n", comp.edges_source[j], comp.edges_target[j]);
+    }
+    // return;
   }
   fprintf(stdout, "\n---------------\nElapsed time %.4f\n", elapsed_time);
 }
