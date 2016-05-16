@@ -17,7 +17,7 @@ Component::Component( int tid, int row_idx ){
   for ( int i = row_ptr_begin[row_idx]; i <= row_ptr_end[row_idx]; i++ ) {
     col = col_ind[i];
     // Target node is in the correct graph (and not a self edge)
-    if ( component_id[col][0] == graph && col != row_idx ) {
+    if ( /*component_id[col][0] == graph &&*/ col != row_idx ) {
       el.dist = values[i];
       el.col = col_ind[i];
       el.from = row_idx;
@@ -79,7 +79,7 @@ void Component::addNode( int source, int node ){
       elements.erase(elements.begin() + i);
     }
     else if ( col < el.col ) { // Insert edge to a 'new' vertex
-      if ( component_id[col][0] == graph &&  // Correct graph
+      if ( //component_id[col][0] == graph &&  // Correct graph
            !( component_id[col][1] == rank && component_id[col][2] == id ) ) { // No self edge
         nel.dist = values[j];
         nel.col = col;
@@ -178,16 +178,6 @@ void Component::addComponent( Component &comp, int node, int source ){
     }
   }
 
-  // Add any remaining elements at the end
-  while ( j < comp.elements.size() ) {
-    el2 = comp.elements[j];
-    if ( component_id[el2.col][0] == graph &&  // Correct graph
-         !( component_id[el2.col][1] == rank && component_id[el2.col][2] == id ) ) { // No self edge
-      elements.push_back(el2);
-    }
-    j++;
-  }
-
   // Remove any remaining edges to the new nodes
   while ( i < elements.size() ) {
     el = elements[i];
@@ -202,5 +192,15 @@ void Component::addComponent( Component &comp, int node, int source ){
       i--;
     }
     i++;
+  }
+
+  // Add any remaining elements at the end
+  while ( j < comp.elements.size() ) {
+    el2 = comp.elements[j];
+    if ( //component_id[el2.col][0] == graph &&  // Correct graph
+         !( component_id[el2.col][1] == rank && component_id[el2.col][2] == id ) ) { // No self edge
+      elements.push_back(el2);
+    }
+    j++;
   }
 }
