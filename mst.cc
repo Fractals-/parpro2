@@ -515,7 +515,7 @@ main(int argc, char **argv)
   std::vector<Component> finished_mst;
   for ( graph = 0; graph < num_graphs; graph++ ){
     // fprintf(stderr, "Graph %d: %d: %d: %d\n", graph, rank, graph_sizes[graph], num_graphs);
-    if ( graph_sizes[graph] > 3 ) {// Otherwise parallelization is unlikely to be helpful
+    if ( graph_sizes[graph] > 1000 ) {// Otherwise parallelization is unlikely to be helpful
       determineComponents(n_rows, graph_sizes[graph], max_BFS_lvl[graph]);
       // fprintf(stderr, "time %d: %d: %.2f\n", graph, rank, MPI_Wtime() - start_time);
       Component comp = generateMst(n_rows);
