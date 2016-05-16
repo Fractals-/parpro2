@@ -390,7 +390,7 @@ void debugComponents( std::vector<Component> finished_components ){
  *    finished_components - The components of this 'subgraph'
  */
 void combineComponents( std::vector<Component>& finished_components ){
-  int node, source, tnode, max_id = 0, k;
+  int node, source, tnode, max_id = 0, k, index;
   unsigned int i = 0, j;
   bool found;
 
@@ -404,7 +404,7 @@ void combineComponents( std::vector<Component>& finished_components ){
 
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
-      int index = component_position[component_id[node][2]];
+      index = component_position[component_id[node][2]];
       Component comp = finished_components[index];
 
       for ( j = 0; j < comp.nodes.size(); j++ ) {
@@ -419,7 +419,7 @@ void combineComponents( std::vector<Component>& finished_components ){
       for ( k = component_id[node][2] + 1; k <= max_id; k++ )
         component_position[k]--;
 
-      if ( index < i ) // Adjust i because of removal
+      if ( index < (int) i ) // Adjust i because of removal
         i--;
 
       found = cur_comp.findNextNode(node, source);
