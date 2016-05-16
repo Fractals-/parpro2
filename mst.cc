@@ -427,12 +427,14 @@ Component generateMst( int n_rows ){
   std::vector<Component> finished_components;
   generateComponents(n_rows, finished_components);
 
-  fprintf(stderr, "gen %d: %d: %.2f\n", rank, graph, MPI_Wtime() - start_time);
+  if ( graph == 0 )
+    fprintf(stderr, "gen %d: %d: %.2f\n", rank, graph, MPI_Wtime() - start_time);
 
   // Combine the results of the various processors
   mergeLevels(finished_components);
 
-  fprintf(stderr, "merged %d: %d: %.2f\n", rank, graph, MPI_Wtime() - start_time);
+  if ( graph == 0 )
+    fprintf(stderr, "merged %d: %d: %.2f\n", rank, graph, MPI_Wtime() - start_time);
   // if ( finished_components.size() > 1 )
   //   fprintf(stderr, "fin size %d: %d: %d\n", rank, graph, (int) finished_components.size() );
 
