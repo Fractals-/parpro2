@@ -106,6 +106,16 @@ void Component::addNode( int source, int node ){
     col = col_ind[j];
   }
 
+  // Remove any remaining edges to the new node
+  while ( i < elements.size() ) {
+    if ( elements[i].col == node ){
+      weight += elements[i].dist;
+      elements.erase(elements.begin() + i);
+      return;
+    }
+    i++;
+  }
+
   // Add any remaining elements at the end
   while ( j <= row_ptr_end[node] ) {
     if ( //component_id[col][0] == graph && // Correct graph
@@ -117,16 +127,6 @@ void Component::addNode( int source, int node ){
     }
     j++;
     col = col_ind[j];
-  }
-
-  // Remove any remaining edges to the new node
-  while ( i < elements.size() ) {
-    if ( elements[i].col == node ){
-      weight += elements[i].dist;
-      elements.erase(elements.begin() + i);
-      return;
-    }
-    i++;
   }
 }
 
@@ -187,7 +187,7 @@ void Component::addComponent( Component &comp, int node, int source ){
       i--;
     }
     else if ( //component_id[el.col][0] == graph &&  // Correct graph
-         !( component_id[el.col][1] == rank && component_id[el.col][2] == id ) ) { // No self edge
+         ( component_id[el.col][1] == rank && component_id[el.col][2] == id ) ) { // No self edge
       elements.erase(elements.begin() + i);
       i--;
     }
