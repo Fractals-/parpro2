@@ -681,6 +681,13 @@ main(int argc, char **argv)
       return -1;
     }
 
+  // Initialize component id's for each row to -1
+  for ( int i = 0; i < n_rows; i++ ){
+    for ( int j = 0; j < 3; j++ )
+      component_id[i][j] = -1;
+    component_position[i] = -1;
+  }
+
   // Initialize MPI related matters
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -688,13 +695,6 @@ main(int argc, char **argv)
   createElementType();
 
   start_time = MPI_Wtime();
-
-  // Initialize component id's for each row to -1
-  for ( int i = 0; i < n_rows; i++ ){
-    for ( int j = 0; j < 3; j++ )
-      component_id[i][j] = -1;
-    component_position[i] = -1;
-  }
 
   // Determine all disconnected graphs
   std::vector<int> graph_sizes; // Stores the sizes of all disconnected graphs
