@@ -263,22 +263,22 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
       if ( component_id[node][2] == -1 ) { // Add a single node to the component
-        start_node = MPI_Wtime();
         component_id[node][2] = cur_id;
         cur_comp.addNode(source, node);
         cur_comp.nodes.push_back(node);
-        node_time += MPI_Wtime() - start_node;
       }
       else { // Merge with a previously finished component
         start_comp = MPI_Wtime();
         idx = component_id[node][2];
         index = component_position[idx];
 
+        start_node = MPI_Wtime();
         cur_comp.nodes.insert(cur_comp.nodes.end(), finished_components[index].nodes.begin(),
                               finished_components[index].nodes.end());
         for ( j = 0; j < finished_components[index].nodes.size(); j++ ) {
           component_id[finished_components[index].nodes[j]][2] = cur_id;
         }
+        node_time += MPI_Wtime() - start_node;
         // Merge the components
         cur_comp.addComponent(finished_components[index], node, source);
         finished_components.erase(finished_components.begin() + index);
