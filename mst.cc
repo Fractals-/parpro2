@@ -405,6 +405,8 @@ void combineComponents( std::vector<Component>& finished_components, std::vector
       // While this component can be expanded
       while ( found && component_id[node][1] == rank ) {
         index = component_id[node][2];
+        if ( index != finished_components[index].id )
+          fprintf(stderr, "%d: %d: %d: %d\n", rank, graph, index, finished_components[index].id );
         //Component comp = finished_components[index];
 
         cur_comp.nodes.insert(cur_comp.nodes.end(), finished_components[index].nodes.begin(),
