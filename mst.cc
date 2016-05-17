@@ -251,7 +251,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
       fprintf(stderr, "%d: %d IMPOSSIBLE\n", rank, graph);
 
     //fprintf(stderr, "gen %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
-    Component cur_comp(cur_id, min_row);
+    Component cur_comp(cur_id, min_row, n_rows);
     component_id[min_row][2] = cur_id;
     cur_comp.nodes.push_back(min_row);
 
@@ -615,7 +615,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
  */
 Component generateMst( int n_rows ){
   std::vector<Component> finished_components;
-  finished_components.reserve(n_rows);
+  // finished_components.reserve(n_rows);
   generateComponents(n_rows, finished_components);
 
   //if ( graph == 0 )
