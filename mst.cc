@@ -272,7 +272,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
       }
       else { // Merge with a previously finished component
         index = component_position[component_id[node][2]];
-        // fprintf(stderr, "%d: %d: %d: %d: %d: %d IMPOSSIBLE 3\n", rank, graph, node, component_id[node][2], index, (int) finished_components.size() );
+        fprintf(stderr, "%d: %d: %d: %d: %d: %d IMPOSSIBLE 3\n", rank, graph, node, component_id[node][2], index, (int) finished_components.size() );
         // if ( index >= (int) finished_components.size() )
         //   fprintf(stderr, "%d: %d: %d: %d: %d: %d IMPOSSIBLE 2\n", rank, graph, node, component_id[node][2], index, (int) finished_components.size() );
         Component comp = finished_components[index];
