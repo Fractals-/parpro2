@@ -149,8 +149,8 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
     curlvl++;
   }
 
-  // for ( i = 0; i <= max_BFS_lvl; i++ )
-  //   fprintf(stderr, "%d: %d: level %d: %d: %d\n", rank, graph, i, new_lvl[i], lvl_size[i]);
+  for ( i = 0; i <= max_BFS_lvl; i++ )
+    fprintf(stderr, "%d: %d: level %d: %d: %d\n", rank, graph, i, new_lvl[i], lvl_size[i]);
 
   // Set the processors
   for ( i = 0; i < n_rows; i++ )
@@ -509,6 +509,8 @@ main(int argc, char **argv)
   std::vector<int> graph_sizes; // Stores the sizes of all disconnected graphs
   std::vector<int> max_BFS_lvl; // Stores the maximum depth of BFS starting at the 'lowest' node
   determineGraphs(n_rows, graph_sizes, max_BFS_lvl);
+
+  fprintf(stderr, "finished determineGraphs\n");
 
   // // Debug output
   // if ( rank == 0 ){

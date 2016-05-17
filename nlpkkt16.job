@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -pe openmpi 128
-#$ -l h_rt=0:15:00
+#$ -l h_rt=5:00:00
 #$ -N NLPKKT16
 #$ -cwd
 
