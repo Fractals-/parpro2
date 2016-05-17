@@ -135,10 +135,6 @@ void Component::addComponent( Component &comp, int node, int source ){
 
   weight += comp.weight;
   // Update mst
-  // for ( i = 0; i < comp.edges_source.size(); i++ ) {
-  //   edges_source.push_back(comp.edges_source[i]);
-  //   edges_target.push_back(comp.edges_target[i]);
-  // }
   edges_source.insert(edges_source.end(), comp.edges_source.begin(), comp.edges_source.end());
   edges_target.insert(edges_target.end(), comp.edges_target.begin(), comp.edges_target.end());
   edges_source.push_back(source);
