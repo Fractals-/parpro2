@@ -495,7 +495,6 @@ main(int argc, char **argv)
 
   node_time = 0.0;
   comp_time = 0.0;
-  comm_time = 0.0;
   merge_time = 0.0;
 
   // Initialize MPI related matters
