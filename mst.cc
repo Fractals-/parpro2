@@ -242,7 +242,7 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
  *    finished_components - The set of components of this 'subgraph'
  */
 void generateComponents( int n_rows, std::vector<Component>& finished_components ){
-  int node, source, tnode, cur_id = 0, i, index;
+  int node, source, tnode, cur_id = 0, i, index, idx;
   unsigned int j;
   bool found;
 
@@ -271,8 +271,9 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
         cur_comp.nodes.push_back(node);
       }
       else { // Merge with a previously finished component
-        index = component_position[component_id[node][2]];
-        fprintf(stderr, "%d: %d: %d: %d: %d: %d IMPOSSIBLE 3\n", rank, graph, node, component_id[node][2], index, (int) finished_components.size() );
+        idx = component_id[node][2];
+        index = component_position[idx];
+        // fprintf(stderr, "%d: %d: %d: %d: %d: %d IMPOSSIBLE 3\n", rank, graph, node, component_id[node][2], index, (int) finished_components.size() );
         // if ( index >= (int) finished_components.size() )
         //   fprintf(stderr, "%d: %d: %d: %d: %d: %d IMPOSSIBLE 2\n", rank, graph, node, component_id[node][2], index, (int) finished_components.size() );
         Component comp = finished_components[index];
@@ -290,7 +291,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
         cur_comp.addComponent(comp, node, source);
         finished_components.erase(finished_components.begin() + index);
 
-        for ( i = component_id[node][2] + 1; i < cur_id; i++ )
+        for ( i = idx + 1; i < cur_id; i++ )
           component_position[i]--;
       }
 
@@ -400,7 +401,7 @@ void debugComponents( std::vector<Component> finished_components ){
  *    finished_components - The components of this 'subgraph'
  */
 void combineComponents( std::vector<Component>& finished_components ){
-  int node, source, tnode, max_id = 0, k, index;
+  int node, source, tnode, max_id = 0, k, index, idx;
   unsigned int i = 0, j;
   bool found;
 
@@ -414,7 +415,8 @@ void combineComponents( std::vector<Component>& finished_components ){
 
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
-      index = component_position[component_id[node][2]];
+      idx = component_id[node][2];
+      index = component_position[idx];
       Component comp = finished_components[index];
 
       for ( j = 0; j < comp.nodes.size(); j++ ) {
@@ -426,7 +428,7 @@ void combineComponents( std::vector<Component>& finished_components ){
       cur_comp.addComponent(comp, node, source);
       finished_components.erase(finished_components.begin() + index);
 
-      for ( k = component_id[node][2] + 1; k <= max_id; k++ )
+      for ( k = idx + 1; k <= max_id; k++ )
         component_position[k]--;
 
       if ( index < (int) i ) // Adjust i because of removal
