@@ -34,6 +34,9 @@ MPI_Datatype MPI_Element;
 
 double start_time;
 
+double start_node, start_comp, start_comm, start_merge;
+double node_time, comp_time, comm_time, merge_time;
+
 // *************************************************************************************
 
 /* Creates the 'MPI_Element' mpi datatype, such that Elements can be communicated
@@ -260,11 +263,14 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
       if ( component_id[node][2] == -1 ) { // Add a single node to the component
+        start_node = MPI_Wtime();
         component_id[node][2] = cur_id;
         cur_comp.addNode(source, node);
         cur_comp.nodes.push_back(node);
+        node_time += MPI_Wtime() - start_node;
       }
       else { // Merge with a previously finished component
+        start_comp = MPI_Wtime();
         idx = component_id[node][2];
         index = component_position[idx];
 
@@ -279,6 +285,8 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 
         for ( i = idx + 1; i < cur_id; i++ )
           component_position[i]--;
+
+        comp_time += MPI_Wtime() - start_comp;
       }
 
       found = cur_comp.findNextNode(node, source);
@@ -545,6 +553,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
     mod_rank = rank % nstep;
 
     if ( mod_rank == 0 ){
+      start_comm = MPI_Wtime();
       // Receive components from 'rank + step' and integrate them
       MPI_Recv(&num_comps, 1, MPI_UNSIGNED, rank + step, 0, MPI_COMM_WORLD, &status);
 
@@ -555,17 +564,24 @@ void mergeLevels( std::vector<Component>& finished_components ){
         cur_id++;
       }
 
+      comm_time += MPI_Wtime() - start_comm;
+
+      start_merge = MPI_Wtime();
       // Integrate/combine the components
       combineComponents(finished_components);
+      merge_time += MPI_Wtime() - start_merge;
 
     }
     else if ( mod_rank - step == 0 ){
+      start_comm = MPI_Wtime();
       // Send components to 'rank - step'
       num_comps = finished_components.size();
       MPI_Send(&num_comps, 1, MPI_UNSIGNED, rank - step, 0, MPI_COMM_WORLD);
 
       for ( i = 0; i < num_comps; i++ )
         sendComponent( finished_components[i], rank - step );
+
+      comm_time += MPI_Wtime() - start_comm;
     }
 
     step = nstep;
@@ -687,6 +703,11 @@ main(int argc, char **argv)
     component_position[i] = -1;
   }
 
+  node_time = 0.0;
+  comp_time = 0.0;
+  comm_time = 0.0;
+  merge_time = 0.0;
+
   // Initialize MPI related matters
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -740,6 +761,11 @@ main(int argc, char **argv)
     double elapsed_time = MPI_Wtime() - start_time;
     outputMST(elapsed_time, finished_mst);
   }
+
+  fprintf(stderr, "%d: node time %.2f\n", rank, node_time);
+  fprintf(stderr, "%d: comp time %.2f\n", rank, comp_time);
+  fprintf(stderr, "%d: comm time %.2f\n", rank, comm_time);
+  fprintf(stderr, "%d: merge time %.2f\n", rank, merge_time);
 
   MPI_Type_free(&MPI_Element);
   MPI_Finalize();
