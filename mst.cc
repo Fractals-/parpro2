@@ -236,7 +236,7 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
  *    finished_components - The set of components of this 'subgraph'
  */
 void generateComponents( int n_rows, std::vector<Component>& finished_components ){
-  int node, source, tnode, cur_id = 0, i, index, idx;
+  int node, source, cur_id = 0, i, index, idx;
   unsigned int j;
   bool found;
 
@@ -271,9 +271,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
         cur_comp.nodes.insert(cur_comp.nodes.end(), finished_components[index].nodes.begin(),
                               finished_components[index].nodes.end());
         for ( j = 0; j < finished_components[index].nodes.size(); j++ ) {
-          //tnode = finished_components[index].nodes[j];
           component_id[finished_components[index].nodes[j]][2] = cur_id;
-          //cur_comp.nodes.push_back(tnode);
         }
         // Merge the components
         cur_comp.addComponent(finished_components[index], node, source);
@@ -432,7 +430,7 @@ void debugComponents( std::vector<Component> finished_components ){
  *    finished_components - The components of this 'subgraph'
  */
 void combineComponents( std::vector<Component>& finished_components ){
-  int node, source, tnode, max_id = 0, k, index, idx;
+  int node, source, max_id = 0, k, index, idx;
   unsigned int i = 0, j;
   bool found;
 
@@ -617,6 +615,7 @@ void mergeLevels( std::vector<Component>& finished_components ){
  */
 Component generateMst( int n_rows ){
   std::vector<Component> finished_components;
+  finished_components.reserve(n_rows);
   generateComponents(n_rows, finished_components);
 
   //if ( graph == 0 )
