@@ -276,19 +276,19 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
         // fprintf(stderr, "%d: %d: %d: %d: %d: %d IMPOSSIBLE 3\n", rank, graph, node, component_id[node][2], index, (int) finished_components.size() );
         // if ( index >= (int) finished_components.size() )
         //   fprintf(stderr, "%d: %d: %d: %d: %d: %d IMPOSSIBLE 2\n", rank, graph, node, component_id[node][2], index, (int) finished_components.size() );
-        Component comp = finished_components[index];
-        if ( comp.id != component_id[node][2] ){
-          fprintf(stderr, "%d: %d: %d: %d: %d: %d IMPOSSIBLE 3\n", rank, graph, node, component_id[node][2], index, (int) finished_components.size() );
-          abort();
-        }
+        //Component comp = finished_components[index];
+        // if ( comp.id != component_id[node][2] ){
+        //   fprintf(stderr, "%d: %d: %d: %d: %d: %d IMPOSSIBLE 3\n", rank, graph, node, component_id[node][2], index, (int) finished_components.size() );
+        //   abort();
+        // }
 
-        for ( j = 0; j < comp.nodes.size(); j++ ) {
-          tnode = comp.nodes[j];
+        for ( j = 0; j < finished_components[index].nodes.size(); j++ ) {
+          tnode = finished_components[index].nodes[j];
           component_id[tnode][2] = cur_id;
           cur_comp.nodes.push_back(tnode);
         }
         // Merge the components
-        cur_comp.addComponent(comp, node, source);
+        cur_comp.addComponent(finished_components[index], node, source);
         finished_components.erase(finished_components.begin() + index);
 
         for ( i = idx + 1; i < cur_id; i++ )
@@ -417,15 +417,15 @@ void combineComponents( std::vector<Component>& finished_components ){
     while ( found && component_id[node][1] == rank ) {
       idx = component_id[node][2];
       index = component_position[idx];
-      Component comp = finished_components[index];
+      //Component comp = finished_components[index];
 
-      for ( j = 0; j < comp.nodes.size(); j++ ) {
-        tnode = comp.nodes[j];
+      for ( j = 0; j < finished_components[index].nodes.size(); j++ ) {
+        tnode = finished_components[index].nodes[j];
         component_id[tnode][2] = cur_comp.id;
         cur_comp.nodes.push_back(tnode);
       }
       // Merge the components
-      cur_comp.addComponent(comp, node, source);
+      cur_comp.addComponent(finished_components[index], node, source);
       finished_components.erase(finished_components.begin() + index);
 
       for ( k = idx + 1; k <= max_id; k++ )
