@@ -7,17 +7,12 @@ Component::Component( int tid ){
 
 // *************************************************************************************
 
-Component::Component( int tid, int row_idx, int n_rows ){
+Component::Component( int tid, int row_idx ){
   id = tid;
   weight = 0.0;
 
   Element el;
   int col;
-
-  elements.reserve(n_rows);
-  edges_source.reserve(n_rows);
-  edges_target.reserve(n_rows);
-  nodes.reserve(n_rows);
 
   for ( int i = row_ptr_begin[row_idx]; i <= row_ptr_end[row_idx]; i++ ) {
     col = col_ind[i];

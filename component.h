@@ -28,7 +28,7 @@ public:
 
   // Constructors
   Component( int tid );
-  Component( int tid, int row_idx, int n_rows );
+  Component( int tid, int row_idx );
   ~Component();
 
   /* Finds the closest node 'node' to the component

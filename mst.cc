@@ -251,7 +251,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
       fprintf(stderr, "%d: %d IMPOSSIBLE\n", rank, graph);
 
     //fprintf(stderr, "gen %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
-    Component cur_comp(cur_id, min_row, n_rows);
+    Component cur_comp(cur_id, min_row);
     component_id[min_row][2] = cur_id;
     cur_comp.nodes.push_back(min_row);
 
