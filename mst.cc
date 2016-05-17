@@ -508,9 +508,10 @@ main(int argc, char **argv)
   // Determine all disconnected graphs
   std::vector<int> graph_sizes; // Stores the sizes of all disconnected graphs
   std::vector<int> max_BFS_lvl; // Stores the maximum depth of BFS starting at the 'lowest' node
+  fprintf(stderr, "start determineGraphs: %.2f\n", MPI_Wtime() - start_time);
   determineGraphs(n_rows, graph_sizes, max_BFS_lvl);
 
-  fprintf(stderr, "finished determineGraphs\n");
+  fprintf(stderr, "finished determineGraphs: %.2f\n", MPI_Wtime() - start_time);
 
   // // Debug output
   // if ( rank == 0 ){
