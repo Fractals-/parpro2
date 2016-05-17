@@ -3,6 +3,7 @@
 
 Component::Component( int tid ){
   id = tid;
+  weight = 0.0;
 }
 
 // *************************************************************************************
@@ -134,6 +135,7 @@ void Component::addComponent( Component &comp, int node, int source ){
   unsigned int i, j = 0;
 
   weight += comp.weight;
+  elements.reserve(elements.size() + comp.elements.size());
   // Update mst
   edges_source.insert(edges_source.end(), comp.edges_source.begin(), comp.edges_source.end());
   edges_target.insert(edges_target.end(), comp.edges_target.begin(), comp.edges_target.end());
