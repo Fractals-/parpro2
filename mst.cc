@@ -272,15 +272,15 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
         idx = component_id[node][2];
         index = component_position[idx];
 
-        start_node = MPI_Wtime();
         cur_comp.nodes.insert(cur_comp.nodes.end(), finished_components[index].nodes.begin(),
                               finished_components[index].nodes.end());
         for ( j = 0; j < finished_components[index].nodes.size(); j++ ) {
           component_id[finished_components[index].nodes[j]][2] = cur_id;
         }
-        node_time += MPI_Wtime() - start_node;
         // Merge the components
+        start_node = MPI_Wtime();
         cur_comp.addComponent(finished_components[index], node, source);
+        node_time += MPI_Wtime() - start_node;
         finished_components.erase(finished_components.begin() + index);
 
         for ( i = idx + 1; i < cur_id; i++ )
