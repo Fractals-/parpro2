@@ -253,6 +253,9 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 
   // As long as there is node that is not yet in a component continue
   while ( min_row < n_rows ) {
+    if ( cur_id > max_n_rows - 1)
+      fprintf(stderr, "%d: %d IMPOSSIBLE\n", rank, graph);
+
     //fprintf(stderr, "gen %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
     Component cur_comp(cur_id, min_row);
     component_id[min_row][2] = cur_id;
@@ -269,6 +272,8 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
       }
       else { // Merge with a previously finished component
         index = component_position[component_id[node][2]];
+        if ( index == -1 )
+          fprintf(stderr, "%d: %d: %d IMPOSSIBLE 2\n", rank, graph, node, component_id[node][2]);
         Component comp = finished_components[index];
 
         for ( j = 0; j < comp.nodes.size(); j++ ) {
