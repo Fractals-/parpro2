@@ -73,13 +73,13 @@ void Component::addNode( int source, int node ){
   Element el, nel;
   // Create combined 'out-edge list'
   while ( i < elements.size() && j <= row_ptr_end[node]) {
-    //el = elements[i];
+    el = elements[i];
 
-    if ( elements[i].col == node ){ // Remove newly added edge (prevent self edge)
-      weight += elements[i].dist;
+    if ( el.col == node ){ // Remove newly added edge (prevent self edge)
+      weight += el.dist;
       elements.erase(elements.begin() + i);
     }
-    else if ( col < elements[i].col ) { // Insert edge to a 'new' vertex
+    else if ( col < el.col ) { // Insert edge to a 'new' vertex
       if ( component_id[col][2] != id ) { // No self edge
         nel.dist = values[j];
         nel.col = col;
@@ -89,12 +89,12 @@ void Component::addNode( int source, int node ){
       }
       j++;
     }
-    else if ( col == elements[i].col ){
-      if ( values[j] < elements[i].dist ){
-        elements[i].dist = values[j];
-        elements[i].col = col;
-        elements[i].from = node;
-        //elements[i] = el;
+    else if ( col == el.col ){
+      if ( values[j] < el.dist ){
+        el.dist = values[j];
+        el.col = col;
+        el.from = node;
+        elements[i] = el;
       }
       i++;
       j++;
