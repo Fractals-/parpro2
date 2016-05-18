@@ -62,30 +62,100 @@ bool Component::findNextNode( int &node, int &source ){
 
 // *************************************************************************************
 
+// void Component::addNode( int source, int node ){
+//   // Update mst
+//   edges_source.push_back(source);
+//   edges_target.push_back(node);
+
+//   unsigned int i = 0;
+//   int j = row_ptr_begin[node],
+//       col = col_ind[j];
+//   Element el, nel;
+//   // Create combined 'out-edge list'
+//   while ( i < elements.size() && j <= row_ptr_end[node]) {
+//     el = elements[i];
+
+//     if ( el.col == node ){ // Remove newly added edge (prevent self edge)
+//       weight += el.dist;
+//       elements.erase(elements.begin() + i);
+//     }
+//     else if ( col < el.col ) { // Insert edge to a 'new' vertex
+//       if ( component_id[col][2] != id ) { // No self edge
+//         nel.dist = values[j];
+//         nel.col = col;
+//         nel.from = node;
+//         elements.insert(elements.begin() + i, nel);
+//         i++;
+//       }
+//       j++;
+//     }
+//     else if ( col == el.col ){
+//       if ( values[j] < el.dist ){
+//         el.dist = values[j];
+//         el.col = col;
+//         el.from = node;
+//         elements[i] = el;
+//       }
+//       i++;
+//       j++;
+//     }
+//     else {
+//       i++;
+//     }
+
+//     col = col_ind[j];
+//   }
+
+//   // Remove any remaining edges to the new node
+//   while ( i < elements.size() ) {
+//     if ( elements[i].col == node ){
+//       weight += elements[i].dist;
+//       elements.erase(elements.begin() + i);
+//       return;
+//     }
+//     i++;
+//   }
+
+//   // Add any remaining elements at the end
+//   while ( j <= row_ptr_end[node] ) {
+//     if ( component_id[col][2] != id ) { // No self edge
+//       nel.dist = values[j];
+//       nel.col = col;
+//       nel.from = node;
+//       elements.push_back(nel);
+//     }
+//     j++;
+//     col = col_ind[j];
+//   }
+// }
+
 void Component::addNode( int source, int node ){
   // Update mst
   edges_source.push_back(source);
   edges_target.push_back(node);
+
+  std::vector<Element> temp = elements;
+  elements.clear();
+  elements.reserve(temp.size() + row_ptr_end[node] - row_ptr_begin[node]);
 
   unsigned int i = 0;
   int j = row_ptr_begin[node],
       col = col_ind[j];
   Element el, nel;
   // Create combined 'out-edge list'
-  while ( i < elements.size() && j <= row_ptr_end[node]) {
-    el = elements[i];
+  while ( i < temp.size() && j <= row_ptr_end[node]) {
+    el = temp[i];
 
     if ( el.col == node ){ // Remove newly added edge (prevent self edge)
       weight += el.dist;
-      elements.erase(elements.begin() + i);
+      i++;
     }
     else if ( col < el.col ) { // Insert edge to a 'new' vertex
       if ( component_id[col][2] != id ) { // No self edge
         nel.dist = values[j];
         nel.col = col;
         nel.from = node;
-        elements.insert(elements.begin() + i, nel);
-        i++;
+        elements.push_back(nel);
       }
       j++;
     }
@@ -94,25 +164,25 @@ void Component::addNode( int source, int node ){
         el.dist = values[j];
         el.col = col;
         el.from = node;
-        elements[i] = el;
       }
+      elements.push_back(el);
       i++;
       j++;
     }
     else {
+      elements.push_back(el);
       i++;
     }
-
     col = col_ind[j];
   }
 
   // Remove any remaining edges to the new node
-  while ( i < elements.size() ) {
-    if ( elements[i].col == node ){
-      weight += elements[i].dist;
-      elements.erase(elements.begin() + i);
-      return;
+  while ( i < temp.size() ) {
+    if ( temp[i].col == node ){
+      weight += temp[i].dist;
     }
+    else if ( component_id[temp[i].col][2] != id )
+      elements.push_back(temp[i]);
     i++;
   }
 
@@ -130,74 +200,6 @@ void Component::addNode( int source, int node ){
 }
 
 // *************************************************************************************
-
-// void Component::addComponent( Component &comp, int node, int source ){
-//   unsigned int i, j = 0;
-
-//   weight += comp.weight;
-//   elements.reserve(elements.size() + comp.elements.size());
-//   // Update mst
-//   edges_source.insert(edges_source.end(), comp.edges_source.begin(), comp.edges_source.end());
-//   edges_target.insert(edges_target.end(), comp.edges_target.begin(), comp.edges_target.end());
-//   edges_source.push_back(source);
-//   edges_target.push_back(node);
-
-//   i = 0;
-//   Element el, el2;
-//   // Create combined 'out-edge list'
-//   while ( i < elements.size() && j < comp.elements.size() ) {
-//     el = elements[i];
-//     el2 = comp.elements[j];
-
-//     if ( el.col == node ){ // Remove newly added edge (prevent self edge)
-//       weight += el.dist;
-//       elements.erase(elements.begin() + i);
-//     }
-//     else if ( el2.col < el.col ) { // Insert edge to a 'new' vertex
-//       if ( component_id[el2.col][2] != id ) { // No self edge
-//         elements.insert(elements.begin() + i, el2);
-//         i++;
-//       }
-//       j++;
-//     }
-//     else if ( el2.col == el.col ){
-//       if ( el2.dist < el.dist )
-//         elements[i] = el2;
-//       i++;
-//       j++;
-//     }
-//     else {
-//       if ( component_id[el.col][2] != id ) // No self edge
-//         i++;
-//       else // Remove self edge
-//         elements.erase(elements.begin() + i);
-//     }
-//   }
-
-//   // Remove any remaining edges to the new nodes
-//   while ( i < elements.size() ) {
-//     el = elements[i];
-//     if ( el.col == node ){
-//       weight += el.dist;
-//       elements.erase(elements.begin() + i);
-//       i--;
-//     }
-//     else if ( component_id[el.col][2] == id ) { // No self edge
-//       elements.erase(elements.begin() + i);
-//       i--;
-//     }
-//     i++;
-//   }
-
-//   // Add any remaining elements at the end
-//   while ( j < comp.elements.size() ) {
-//     el2 = comp.elements[j];
-//     if ( component_id[el2.col][2] != id ) { // No self edge
-//       elements.push_back(el2);
-//     }
-//     j++;
-//   }
-// }
 
 void Component::addComponent( Component &comp, int node, int source ){
   unsigned int i, j = 0;
