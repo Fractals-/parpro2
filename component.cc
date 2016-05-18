@@ -90,7 +90,7 @@ void Component::addNode( int source, int node ){
       j++;
     }
     else if ( col == elements[i].col ){
-      if ( values[j] < el.dist ){
+      if ( values[j] < elements[i].dist ){
         elements[i].dist = values[j];
         elements[i].col = col;
         elements[i].from = node;
