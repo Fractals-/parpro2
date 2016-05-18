@@ -437,13 +437,15 @@ Component generateMst( int n_rows ){
 // *************************************************************************************
 
 void outputMST( Component comp ){
-  fprintf(stdout, "\nMST %d:\n", graph);
-  fprintf(stdout, "weight = %.4f\n", comp.weight);
-  fprintf(stdout, "number_nodes = %d\n", (int) comp.nodes.size());
-  fprintf(stdout, "path_index = %d\n", (int) path_index);
-  // for (int i = 0; i < path_index; i++ ){
-  //   fprintf(stdout, "%d, %d\n", path[i][0], path[i][1]);
-  // }
+  if ( rank == 0 ) {
+    fprintf(stdout, "\nMST %d:\n", graph);
+    fprintf(stdout, "weight = %.4f\n", comp.weight);
+    fprintf(stdout, "number_nodes = %d\n", (int) comp.nodes.size());
+    fprintf(stdout, "path_index = %d\n", (int) path_index);
+    // for (int i = 0; i < path_index; i++ ){
+    //   fprintf(stdout, "%d, %d\n", path[i][0], path[i][1]);
+    // }
+  }
 }
 
 // *************************************************************************************
@@ -506,8 +508,7 @@ main(int argc, char **argv)
     path_index = 0;
     if ( graph_sizes[graph] > 1000 ) {// Otherwise parallelization is unlikely to be helpful
       determineComponents(n_rows, graph_sizes[graph], max_BFS_lvl[graph]);
-      if ( rank == 0 )
-        outputMST(generateMst(n_rows));
+      outputMST(generateMst(n_rows));
     }
     else if ( graph_sizes[graph] > 1 ) { // No mst exist for graphs of size 1
       for ( int i = 0; i < max_n_rows; i++ ){
