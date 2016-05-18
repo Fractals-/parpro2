@@ -520,9 +520,6 @@ main(int argc, char **argv)
         outputMST(generateMst(n_rows));
       mpi_size = temp_size; 
     }
-
-    if ( rank == 0 )
-      
   }
 
   // Write mst's to file
