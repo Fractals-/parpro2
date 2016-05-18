@@ -192,9 +192,11 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
       if ( component_id[node][2] == -1 ) { // Add a single node to the component
+        start_node = MPI_Wtime();
         component_id[node][2] = cur_id;
         cur_comp.addNode(source, node);
         cur_comp.nodes.push_back(node);
+        node_time += MPI_Wtime() - start_node;
       }
       else { // Merge with a previously finished component
         start_comp = MPI_Wtime();
@@ -207,9 +209,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
           component_id[finished_components[index].nodes[j]][2] = cur_id;
         }
         // Merge the components
-        start_node = MPI_Wtime();
         cur_comp.addComponent(finished_components[index], node, source);
-        node_time += MPI_Wtime() - start_node;
         finished_components.erase(finished_components.begin() + index);
 
         for ( i = idx + 1; i < cur_id; i++ )
@@ -514,8 +514,6 @@ main(int argc, char **argv)
   determineGraphs(n_rows, graph_sizes, max_BFS_lvl);
 
   fprintf(stderr, "finished determineGraphs: %.2f\n", MPI_Wtime() - start_time);
-
-  return 0;
 
   // // Debug output
   // if ( rank == 0 ){
