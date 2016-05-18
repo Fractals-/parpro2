@@ -36,6 +36,7 @@ double start_time;
 
 double start_node, start_comp, start_merge;
 double node_time, comp_time, merge_time;
+int node_counter, comp_counter, merge_counter;
 
 // *************************************************************************************
 
@@ -194,6 +195,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
       if ( component_id[node][2] == -1 ) { // Add a single node to the component
+        node_counter++;
         start_node = MPI_Wtime();
         component_id[node][2] = cur_id;
         cur_comp.addNode(source, node);
@@ -201,6 +203,7 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
         node_time += MPI_Wtime() - start_node;
       }
       else { // Merge with a previously finished component
+        comp_counter++;
         start_comp = MPI_Wtime();
         idx = component_id[node][2];
         index = component_position[idx];
@@ -339,6 +342,7 @@ void combineComponents( std::vector<Component>& finished_components ){
 
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
+      merge_counter++;
       idx = component_id[node][2];
       index = component_position[idx];
       //Component comp = finished_components[index];
@@ -500,6 +504,9 @@ main(int argc, char **argv)
   node_time = 0.0;
   comp_time = 0.0;
   merge_time = 0.0;
+  node_counter = 0;
+  comp_counter = 0;
+  merge_counter = 0;
 
   // Initialize MPI related matters
   MPI_Init(&argc, &argv);
@@ -558,9 +565,9 @@ main(int argc, char **argv)
     outputMST(elapsed_time, finished_mst);
   }
 
-  fprintf(stderr, "%d: node time %.2f\n", rank, node_time);
-  fprintf(stderr, "%d: comp time %.2f\n", rank, comp_time);
-  fprintf(stderr, "%d: merge time %.2f\n", rank, merge_time);
+  fprintf(stderr, "%d: node time %.2f, %d\n", rank, node_time, node_counter);
+  fprintf(stderr, "%d: comp time %.2f, %d\n", rank, comp_time, comp_counter);
+  fprintf(stderr, "%d: merge time %.2f, %d\n", rank, merge_time, merge_counter);
 
   MPI_Type_free(&MPI_Element);
   MPI_Finalize();
