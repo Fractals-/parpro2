@@ -73,7 +73,7 @@ void Component::addNode( int source, int node ){
   Element el, nel;
   // Create combined 'out-edge list'
   while ( i < elements.size() && j <= row_ptr_end[node]) {
-    el = elements[i];
+    //el = elements[i];
 
     if ( elements[i].col == node ){ // Remove newly added edge (prevent self edge)
       weight += elements[i].dist;
