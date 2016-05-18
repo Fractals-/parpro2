@@ -43,12 +43,17 @@ bool Component::findNextNode( int &node, int &source ){
   Element el;
 
   for ( i = 0; i < elements.size(); i++ ) {
-    // el = elements[i];
-    if ( elements[i].dist < min_value && component_id[elements[i].col][2] != id  ){
-      min_value = elements[i].dist;
-      node = elements[i].col;
-      source = elements[i].from;
+    el = elements[i];
+    if ( el.dist < min_value /*&& component_id[el.col][2] != id*/  ){
+      min_value = el.dist;
+      node = el.col;
+      source = el.from;
     }
+  }
+
+  if ( component_id[node][2] == id ) {
+    fprintf(stderr, "wtf\n");
+    abort();
   }
 
   // Return false if the component can not be further expanded
