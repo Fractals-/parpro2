@@ -72,8 +72,9 @@ void createElementType(){
  *    max_BFS_lvl  - The maximum depth of a BFS starting at the 'lowest' node
  */
 void determineGraphs( int n_rows, std::vector<int>& graph_sizes, std::vector<int>& max_BFS_lvl ){
-  int i, curnode = 0, col;
+  int i, curnode = 0, col, lvl;
   std::vector<int> queue; // Queue used to perform the BFS
+  queue.reserve(1000000);
 
   min_row = 0; // Stores 'lowest' node that is not in a graph yet
   num_graphs = -1;
@@ -90,13 +91,14 @@ void determineGraphs( int n_rows, std::vector<int>& graph_sizes, std::vector<int
     // Do a BFS search
     while ( !queue.empty() ){
       curnode = queue[0];
+      lvl = component_id[curnode][1];
       for ( i = row_ptr_begin[curnode]; i <= row_ptr_end[curnode]; i++ ) {
         col = col_ind[i];
         if ( component_id[col][0] == -1 ) {
           // Add the node 'col' to this disconnected graph
           queue.push_back(col);
           component_id[col][0] = num_graphs;
-          component_id[col][1] = component_id[curnode][1] + 1;
+          component_id[col][1] = lvl + 1;
           graph_sizes[num_graphs]++;
         }
       }
@@ -512,6 +514,8 @@ main(int argc, char **argv)
   determineGraphs(n_rows, graph_sizes, max_BFS_lvl);
 
   fprintf(stderr, "finished determineGraphs: %.2f\n", MPI_Wtime() - start_time);
+
+  return 0;
 
   // // Debug output
   // if ( rank == 0 ){
