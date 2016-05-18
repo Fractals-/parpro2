@@ -441,9 +441,9 @@ void outputMST( Component comp ){
   fprintf(stdout, "weight = %.4f\n", comp.weight);
   fprintf(stdout, "number_nodes = %d\n", (int) comp.nodes.size());
   fprintf(stdout, "path_index = %d\n", (int) path_index);
-  for (int i = 0; i < path_index; i++ ){
-    fprintf(stdout, "%d, %d\n", path[i][0], path[i][1]);
-  }
+  // for (int i = 0; i < path_index; i++ ){
+  //   fprintf(stdout, "%d, %d\n", path[i][0], path[i][1]);
+  // }
 }
 
 // *************************************************************************************
