@@ -247,7 +247,7 @@ void Component::addComponent( Component &comp, int node, int source ){
 
   // Remove any remaining edges to the new nodes
   while ( i < temp.size() ) {
-    el = elements[i];
+    el = temp[i];
     if ( el.col == node ){
       weight += el.dist;
     }
