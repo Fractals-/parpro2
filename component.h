@@ -22,8 +22,6 @@ public:
   int id;          // Component id
   double weight;   // MST weight
   std::vector<Element> elements; // Connections from component
-  std::vector<int> edges_source; // source + target = edge in MST
-  std::vector<int> edges_target;
   std::vector<int> nodes;        // Indicates which nodes are in this component
 
   // Constructors

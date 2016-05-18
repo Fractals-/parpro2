@@ -31,8 +31,6 @@ Component::Component( int tid, int row_idx ){
 
 Component::~Component(){
   elements.clear();
-  edges_source.clear();
-  edges_target.clear();
   nodes.clear();
 }
 
@@ -63,10 +61,6 @@ bool Component::findNextNode( int &node, int &source ){
 // *************************************************************************************
 
 void Component::addNode( int source, int node ){
-  // Update mst
-  edges_source.push_back(source);
-  edges_target.push_back(node);
-
   unsigned int i = 0;
   int j = row_ptr_begin[node],
       col = col_ind[j];
@@ -139,11 +133,6 @@ void Component::addComponent( Component &comp, int node, int source ){
   elements.reserve(temp.size() + comp.elements.size());
 
   weight += comp.weight;
-  // Update mst
-  edges_source.insert(edges_source.end(), comp.edges_source.begin(), comp.edges_source.end());
-  edges_target.insert(edges_target.end(), comp.edges_target.begin(), comp.edges_target.end());
-  edges_source.push_back(source);
-  edges_target.push_back(node);
 
   i = 0;
   //Element el, el2;
