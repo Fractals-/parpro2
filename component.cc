@@ -62,100 +62,30 @@ bool Component::findNextNode( int &node, int &source ){
 
 // *************************************************************************************
 
-// void Component::addNode( int source, int node ){
-//   // Update mst
-//   edges_source.push_back(source);
-//   edges_target.push_back(node);
-
-//   unsigned int i = 0;
-//   int j = row_ptr_begin[node],
-//       col = col_ind[j];
-//   Element el, nel;
-//   // Create combined 'out-edge list'
-//   while ( i < elements.size() && j <= row_ptr_end[node]) {
-//     el = elements[i];
-
-//     if ( el.col == node ){ // Remove newly added edge (prevent self edge)
-//       weight += el.dist;
-//       elements.erase(elements.begin() + i);
-//     }
-//     else if ( col < el.col ) { // Insert edge to a 'new' vertex
-//       if ( component_id[col][2] != id ) { // No self edge
-//         nel.dist = values[j];
-//         nel.col = col;
-//         nel.from = node;
-//         elements.insert(elements.begin() + i, nel);
-//         i++;
-//       }
-//       j++;
-//     }
-//     else if ( col == el.col ){
-//       if ( values[j] < el.dist ){
-//         el.dist = values[j];
-//         el.col = col;
-//         el.from = node;
-//         elements[i] = el;
-//       }
-//       i++;
-//       j++;
-//     }
-//     else {
-//       i++;
-//     }
-
-//     col = col_ind[j];
-//   }
-
-//   // Remove any remaining edges to the new node
-//   while ( i < elements.size() ) {
-//     if ( elements[i].col == node ){
-//       weight += elements[i].dist;
-//       elements.erase(elements.begin() + i);
-//       return;
-//     }
-//     i++;
-//   }
-
-//   // Add any remaining elements at the end
-//   while ( j <= row_ptr_end[node] ) {
-//     if ( component_id[col][2] != id ) { // No self edge
-//       nel.dist = values[j];
-//       nel.col = col;
-//       nel.from = node;
-//       elements.push_back(nel);
-//     }
-//     j++;
-//     col = col_ind[j];
-//   }
-// }
-
 void Component::addNode( int source, int node ){
   // Update mst
   edges_source.push_back(source);
   edges_target.push_back(node);
-
-  std::vector<Element> temp = elements;
-  elements.clear();
-  elements.reserve(temp.size() + row_ptr_end[node] - row_ptr_begin[node]);
 
   unsigned int i = 0;
   int j = row_ptr_begin[node],
       col = col_ind[j];
   Element el, nel;
   // Create combined 'out-edge list'
-  while ( i < temp.size() && j <= row_ptr_end[node]) {
-    el = temp[i];
+  while ( i < elements.size() && j <= row_ptr_end[node]) {
+    el = elements[i];
 
     if ( el.col == node ){ // Remove newly added edge (prevent self edge)
       weight += el.dist;
-      i++;
+      elements.erase(elements.begin() + i);
     }
     else if ( col < el.col ) { // Insert edge to a 'new' vertex
       if ( component_id[col][2] != id ) { // No self edge
         nel.dist = values[j];
         nel.col = col;
         nel.from = node;
-        elements.push_back(nel);
+        elements.insert(elements.begin() + i, nel);
+        i++;
       }
       j++;
     }
@@ -164,25 +94,25 @@ void Component::addNode( int source, int node ){
         el.dist = values[j];
         el.col = col;
         el.from = node;
+        elements[i] = el;
       }
-      elements.push_back(el);
       i++;
       j++;
     }
     else {
-      elements.push_back(el);
       i++;
     }
+
     col = col_ind[j];
   }
 
   // Remove any remaining edges to the new node
-  while ( i < temp.size() ) {
-    if ( temp[i].col == node ){
-      weight += temp[i].dist;
+  while ( i < elements.size() ) {
+    if ( elements[i].col == node ){
+      weight += elements[i].dist;
+      elements.erase(elements.begin() + i);
+      return;
     }
-    else if ( component_id[temp[i].col][2] != id )
-      elements.push_back(temp[i]);
     i++;
   }
 
@@ -198,6 +128,76 @@ void Component::addNode( int source, int node ){
     col = col_ind[j];
   }
 }
+
+// void Component::addNode( int source, int node ){
+//   // Update mst
+//   edges_source.push_back(source);
+//   edges_target.push_back(node);
+
+//   std::vector<Element> temp = elements;
+//   elements.clear();
+//   elements.reserve(temp.size() + row_ptr_end[node] - row_ptr_begin[node]);
+
+//   unsigned int i = 0;
+//   int j = row_ptr_begin[node],
+//       col = col_ind[j];
+//   Element el, nel;
+//   // Create combined 'out-edge list'
+//   while ( i < temp.size() && j <= row_ptr_end[node]) {
+//     el = temp[i];
+
+//     if ( el.col == node ){ // Remove newly added edge (prevent self edge)
+//       weight += el.dist;
+//       i++;
+//     }
+//     else if ( col < el.col ) { // Insert edge to a 'new' vertex
+//       if ( component_id[col][2] != id ) { // No self edge
+//         nel.dist = values[j];
+//         nel.col = col;
+//         nel.from = node;
+//         elements.push_back(nel);
+//       }
+//       j++;
+//     }
+//     else if ( col == el.col ){
+//       if ( values[j] < el.dist ){
+//         el.dist = values[j];
+//         el.col = col;
+//         el.from = node;
+//       }
+//       elements.push_back(el);
+//       i++;
+//       j++;
+//     }
+//     else {
+//       elements.push_back(el);
+//       i++;
+//     }
+//     col = col_ind[j];
+//   }
+
+//   // Remove any remaining edges to the new node
+//   while ( i < temp.size() ) {
+//     if ( temp[i].col == node ){
+//       weight += temp[i].dist;
+//     }
+//     else if ( component_id[temp[i].col][2] != id )
+//       elements.push_back(temp[i]);
+//     i++;
+//   }
+
+//   // Add any remaining elements at the end
+//   while ( j <= row_ptr_end[node] ) {
+//     if ( component_id[col][2] != id ) { // No self edge
+//       nel.dist = values[j];
+//       nel.col = col;
+//       nel.from = node;
+//       elements.push_back(nel);
+//     }
+//     j++;
+//     col = col_ind[j];
+//   }
+// }
 
 // *************************************************************************************
 
