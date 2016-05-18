@@ -34,9 +34,9 @@ MPI_Datatype MPI_Element;
 
 double start_time;
 
-double start_node, start_comp, start_merge;
-double node_time, comp_time, merge_time;
-int node_counter, comp_counter, merge_counter;
+double start_node, start_comp, start_merge; /////////////////////////////////////////////
+double node_time, comp_time, merge_time;  ///////////////////////////////////////////////
+int node_counter, comp_counter, merge_counter; //////////////////////////////////////////
 
 int path[max_n_rows][2];
 int path_index;
@@ -155,11 +155,6 @@ void determineComponents( int n_rows, int graph_size, int max_BFS_lvl ){
     curlvl++;
   }
 
-  if ( rank == 0 ){
-    for ( i = 0; i <= max_BFS_lvl; i++ )
-      fprintf(stderr, "%d: %d: level %d: %d: %d\n", rank, graph, i, new_lvl[i], lvl_size[i]);
-  }
-
   // Set the processors
   for ( i = 0; i < n_rows; i++ )
     component_id[i][1] = new_lvl[component_id[i][1]];
@@ -185,10 +180,6 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 
   // As long as there is node that is not yet in a component continue
   while ( min_row < n_rows ) {
-    if ( cur_id > max_n_rows - 1)
-      fprintf(stderr, "%d: %d IMPOSSIBLE\n", rank, graph);
-
-    //fprintf(stderr, "gen %d: %d: %d: %.2f\n", rank, min_row, cur_id, MPI_Wtime() - start_time);
     Component cur_comp(cur_id, min_row);
     component_id[min_row][2] = cur_id;
     cur_comp.nodes.push_back(min_row);
@@ -201,16 +192,16 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
       path[path_index][1] = node;
       path_index++;
       if ( component_id[node][2] == -1 ) { // Add a single node to the component
-        node_counter++;
-        start_node = MPI_Wtime();
+        node_counter++; ////////////////////////////////////////////////////////////////////////
+        start_node = MPI_Wtime(); //////////////////////////////////////////////////////////////
         component_id[node][2] = cur_id;
-        cur_comp.addNode(source, node);
+        cur_comp.addNode(node);
         cur_comp.nodes.push_back(node);
-        node_time += MPI_Wtime() - start_node;
+        node_time += MPI_Wtime() - start_node; ////////////////////////////////////////////////
       }
       else { // Merge with a previously finished component
-        comp_counter++;
-        start_comp = MPI_Wtime();
+        comp_counter++; ///////////////////////////////////////////////////////////////////////
+        start_comp = MPI_Wtime(); /////////////////////////////////////////////////////////////
         idx = component_id[node][2];
         index = component_position[idx];
 
@@ -220,13 +211,13 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
           component_id[finished_components[index].nodes[j]][2] = cur_id;
         }
         // Merge the components
-        cur_comp.addComponent(finished_components[index], node, source);
+        cur_comp.addComponent(finished_components[index], node);
         finished_components.erase(finished_components.begin() + index);
 
         for ( i = idx + 1; i < cur_id; i++ )
           component_position[i]--;
 
-        comp_time += MPI_Wtime() - start_comp;
+        comp_time += MPI_Wtime() - start_comp; ///////////////////////////////////////////////
       }
 
       found = cur_comp.findNextNode(node, source);
@@ -331,7 +322,7 @@ void combineComponents( std::vector<Component>& finished_components ){
         component_id[finished_components[index].nodes[j]][2] = cur_comp.id;
       }
       // Merge the components
-      cur_comp.addComponent(finished_components[index], node, source);
+      cur_comp.addComponent(finished_components[index], node);
       finished_components.erase(finished_components.begin() + index);
 
       for ( k = idx + 1; k <= max_id; k++ )
@@ -383,10 +374,10 @@ void mergeLevels( std::vector<Component>& finished_components ){
       MPI_Recv(&path[path_index][0], path_size * 2, MPI_INT, rank + step, 6, MPI_COMM_WORLD, &status);
       path_index += path_size;
 
-      start_merge = MPI_Wtime();
+      start_merge = MPI_Wtime(); ///////////////////////////////////////////////////////////
       // Integrate/combine the components
       combineComponents(finished_components);
-      merge_time += MPI_Wtime() - start_merge;
+      merge_time += MPI_Wtime() - start_merge; /////////////////////////////////////////////
 
     }
     else if ( mod_rank - step == 0 ){
@@ -440,11 +431,11 @@ void outputMST( Component comp ){
   if ( rank == 0 ) {
     fprintf(stdout, "\nMST %d:\n", graph);
     fprintf(stdout, "weight = %.4f\n", comp.weight);
+    for (int i = 0; i < path_index; i++ ){
+      fprintf(stdout, "%d, %d\n", path[i][0], path[i][1]);
+    }
     fprintf(stdout, "number_nodes = %d\n", (int) comp.nodes.size());
     fprintf(stdout, "path_index = %d\n", (int) path_index);
-    // for (int i = 0; i < path_index; i++ ){
-    //   fprintf(stdout, "%d, %d\n", path[i][0], path[i][1]);
-    // }
   }
 }
 
@@ -479,12 +470,12 @@ main(int argc, char **argv)
     component_position[i] = -1;
   }
 
-  node_time = 0.0;
-  comp_time = 0.0;
-  merge_time = 0.0;
-  node_counter = 0;
-  comp_counter = 0;
-  merge_counter = 0;
+  node_time = 0.0; ////////////////////////////////////////////////////////////////////////
+  comp_time = 0.0; ////////////////////////////////////////////////////////////////////////
+  merge_time = 0.0; ////////////////////////////////////////////////////////////////////////
+  node_counter = 0; ////////////////////////////////////////////////////////////////////////
+  comp_counter = 0; ////////////////////////////////////////////////////////////////////////
+  merge_counter = 0; ////////////////////////////////////////////////////////////////////////
 
   // Initialize MPI related matters
   MPI_Init(&argc, &argv);
@@ -528,11 +519,12 @@ main(int argc, char **argv)
     // Compute elapsed time
     double elapsed_time = MPI_Wtime() - start_time;
     fprintf(stdout, "\n---------------\nElapsed time %.4f\n", elapsed_time);
+    fprintf(stderr, "\n---------------\nElapsed time %.4f\n", elapsed_time); ///////////////
   }
 
-  fprintf(stderr, "%d: node time %.2f, %d\n", rank, node_time, node_counter);
-  fprintf(stderr, "%d: comp time %.2f, %d\n", rank, comp_time, comp_counter);
-  fprintf(stderr, "%d: merge time %.2f, %d\n", rank, merge_time, merge_counter);
+  fprintf(stderr, "%d: node time %.2f, %d\n", rank, node_time, node_counter); //////////////
+  fprintf(stderr, "%d: comp time %.2f, %d\n", rank, comp_time, comp_counter); //////////////
+  fprintf(stderr, "%d: merge time %.2f, %d\n", rank, merge_time, merge_counter); ///////////
 
   MPI_Type_free(&MPI_Element);
   MPI_Finalize();

@@ -40,17 +40,15 @@ public:
   /* Adds the closest node 'node' to the component
    * Parameters:
    *    node   - The target node closest to the component
-   *    source - The source node to the closest node
    */
-  void addNode( int source, int node );
+  void addNode( int node );
 
   /* Adds the closest component 'comp' to the component given by the connection
-   * between 'node' and 'source'
+   * between to 'node'
    * Parameters:
    *    node   - The target node closest to the component
-   *    source - The source node to the closest node
    */
-  void addComponent( Component &comp, int node, int source );
+  void addComponent( Component &comp, int node );
 };
 
 #endif /* __COMPONENT_H__ */

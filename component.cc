@@ -60,7 +60,7 @@ bool Component::findNextNode( int &node, int &source ){
 
 // *************************************************************************************
 
-void Component::addNode( int source, int node ){
+void Component::addNode( int node ){
   unsigned int i = 0;
   int j = row_ptr_begin[node],
       col = col_ind[j];
@@ -125,7 +125,7 @@ void Component::addNode( int source, int node ){
 
 // *************************************************************************************
 
-void Component::addComponent( Component &comp, int node, int source ){
+void Component::addComponent( Component &comp, int node ){
   unsigned int i, j = 0;
 
   std::vector<Element> temp = elements;
