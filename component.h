@@ -1,3 +1,10 @@
+/* component.h
+ * Assignment 2, Parallel Programming, LIACS
+ *
+ * Hanjo Boekhout - s1281348
+ * 31-5-2016
+ */
+
 #ifndef __COMPONENT_H__
 #define __COMPONENT_H__
 

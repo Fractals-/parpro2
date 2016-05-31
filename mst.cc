@@ -1,3 +1,10 @@
+/* mst.cc
+ * Assignment 2, Parallel Programming, LIACS
+ *
+ * Hanjo Boekhout - s1281348
+ * 31-5-2016
+ */
+
 #include <cstdio>
 #include <ctime>
 #include <cstdlib>
@@ -31,12 +38,6 @@ static int num_graphs; // The number of disconnected graphs
 static int component_position[max_n_rows];
 
 MPI_Datatype MPI_Element;
-
-double start_time;
-
-double start_node, start_comp, start_merge; /////////////////////////////////////////////
-double node_time, comp_time, merge_time;  ///////////////////////////////////////////////
-int node_counter, comp_counter, merge_counter; //////////////////////////////////////////
 
 int path[max_n_rows][2];
 int path_index;
@@ -192,16 +193,11 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
       path[path_index][1] = node;
       path_index++;
       if ( component_id[node][2] == -1 ) { // Add a single node to the component
-        node_counter++; ////////////////////////////////////////////////////////////////////////
-        start_node = MPI_Wtime(); //////////////////////////////////////////////////////////////
         component_id[node][2] = cur_id;
         cur_comp.addNode(node);
         cur_comp.nodes.push_back(node);
-        node_time += MPI_Wtime() - start_node; ////////////////////////////////////////////////
       }
       else { // Merge with a previously finished component
-        comp_counter++; ///////////////////////////////////////////////////////////////////////
-        start_comp = MPI_Wtime(); /////////////////////////////////////////////////////////////
         idx = component_id[node][2];
         index = component_position[idx];
 
@@ -216,8 +212,6 @@ void generateComponents( int n_rows, std::vector<Component>& finished_components
 
         for ( i = idx + 1; i < cur_id; i++ )
           component_position[i]--;
-
-        comp_time += MPI_Wtime() - start_comp; ///////////////////////////////////////////////
       }
 
       found = cur_comp.findNextNode(node, source);
@@ -374,10 +368,8 @@ void mergeLevels( std::vector<Component>& finished_components ){
       MPI_Recv(&path[path_index][0], path_size * 2, MPI_INT, rank + step, 6, MPI_COMM_WORLD, &status);
       path_index += path_size;
 
-      start_merge = MPI_Wtime(); ///////////////////////////////////////////////////////////
       // Integrate/combine the components
       combineComponents(finished_components);
-      merge_time += MPI_Wtime() - start_merge; /////////////////////////////////////////////
 
     }
     else if ( mod_rank - step == 0 ){
@@ -407,14 +399,8 @@ Component generateMst( int n_rows ){
   std::vector<Component> finished_components;
   generateComponents(n_rows, finished_components);
 
-  //if ( graph == 0 )
-    fprintf(stderr, "gen %d: %d: %.2f\n", rank, graph, MPI_Wtime() - start_time);
-
   // Combine the results of the various processors
   mergeLevels(finished_components);
-
-  //if ( graph == 0 )
-    fprintf(stderr, "merged %d: %d: %.2f\n", rank, graph, MPI_Wtime() - start_time);
 
   if ( finished_components.size() > 0 ){
     Component cur_comp = finished_components[0];
@@ -427,6 +413,10 @@ Component generateMst( int n_rows ){
 
 // *************************************************************************************
 
+/* Writes a minimum spanning tree to the standard out
+ * Parameters:
+ *    comp - The component containing the mst
+ */
 void outputMST( Component comp ){
   if ( rank == 0 ) {
     fprintf(stdout, "\nMST %d:\n", graph);
@@ -435,12 +425,10 @@ void outputMST( Component comp ){
       fprintf(stdout, "%d, %d\n", path[i][0], path[i][1]);
     }
     fprintf(stdout, "number_nodes = %d\n", (int) comp.nodes.size());
-    fprintf(stdout, "path_index = %d\n", (int) path_index);
   }
 }
 
 // *************************************************************************************
-////////////////////////////////////////////////////////////////////////////////////////
 
 int
 main(int argc, char **argv)
@@ -470,28 +458,18 @@ main(int argc, char **argv)
     component_position[i] = -1;
   }
 
-  node_time = 0.0; ////////////////////////////////////////////////////////////////////////
-  comp_time = 0.0; ////////////////////////////////////////////////////////////////////////
-  merge_time = 0.0; ////////////////////////////////////////////////////////////////////////
-  node_counter = 0; ////////////////////////////////////////////////////////////////////////
-  comp_counter = 0; ////////////////////////////////////////////////////////////////////////
-  merge_counter = 0; ////////////////////////////////////////////////////////////////////////
-
   // Initialize MPI related matters
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
   createElementType();
 
-  start_time = MPI_Wtime();
+  double start_time = MPI_Wtime();
 
   // Determine all disconnected graphs
   std::vector<int> graph_sizes; // Stores the sizes of all disconnected graphs
   std::vector<int> max_BFS_lvl; // Stores the maximum depth of BFS starting at the 'lowest' node
-  fprintf(stderr, "start determineGraphs: %.2f\n", MPI_Wtime() - start_time);
   determineGraphs(n_rows, graph_sizes, max_BFS_lvl);
-
-  fprintf(stderr, "finished determineGraphs: %.2f\n", MPI_Wtime() - start_time);
 
   // Determine processor distribution for each graph and compute the MST
   std::vector<Component> finished_mst;
@@ -514,17 +492,12 @@ main(int argc, char **argv)
     }
   }
 
-  // Write mst's to file
+  // Write elapsed time to file
   if ( rank == 0 ){
     // Compute elapsed time
     double elapsed_time = MPI_Wtime() - start_time;
     fprintf(stdout, "\n---------------\nElapsed time %.4f\n", elapsed_time);
-    fprintf(stderr, "\n---------------\nElapsed time %.4f\n", elapsed_time); ///////////////
   }
-
-  fprintf(stderr, "%d: node time %.2f, %d\n", rank, node_time, node_counter); //////////////
-  fprintf(stderr, "%d: comp time %.2f, %d\n", rank, comp_time, comp_counter); //////////////
-  fprintf(stderr, "%d: merge time %.2f, %d\n", rank, merge_time, merge_counter); ///////////
 
   MPI_Type_free(&MPI_Element);
   MPI_Finalize();

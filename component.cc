@@ -1,3 +1,10 @@
+/* component.cc
+ * Assignment 2, Parallel Programming, LIACS
+ *
+ * Hanjo Boekhout - s1281348
+ * 31-5-2016
+ */
+
 #include "general.h"
 #include "component.h"
 
@@ -135,7 +142,6 @@ void Component::addComponent( Component &comp, int node ){
   weight += comp.weight;
 
   i = 0;
-  //Element el, el2;
   // Create combined 'out-edge list'
   while ( i < temp.size() && j < comp.elements.size() ) {
     if ( temp[i].col == node ){ // Remove newly added edge (prevent self edge)
