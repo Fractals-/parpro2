@@ -303,7 +303,6 @@ void combineComponents( std::vector<Component>& finished_components ){
 
     // While this component can be expanded
     while ( found && component_id[node][1] == rank ) {
-      merge_counter++;
       idx = component_id[node][2];
       index = component_position[idx];
       path[path_index][0] = source;
