@@ -420,9 +420,9 @@ void outputMST( Component comp ){
   if ( rank == 0 ) {
     fprintf(stdout, "\nMST %d:\n", graph);
     fprintf(stdout, "weight = %.4f\n", comp.weight);
-    for (int i = 0; i < path_index; i++ ){
-      fprintf(stdout, "%d, %d\n", path[i][0], path[i][1]);
-    }
+    // for (int i = 0; i < path_index; i++ ){
+    //   fprintf(stdout, "%d, %d\n", path[i][0], path[i][1]);
+    // }
     fprintf(stdout, "number_nodes = %d\n", (int) comp.nodes.size());
   }
 }
